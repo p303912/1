@@ -134,11 +134,31 @@
       @keyframes x-pulse { 50% { opacity: 0.45; } }
       .x-foot { max-width: 640px; margin: 36px auto 0; padding: 20px 16px 0; border-top: 1px solid var(--x-line); display: grid; gap: 14px; font: var(--type-caption); color: var(--x-dim); }
       .x-foot .badge { justify-self: start; }
+      /* floating nav pill */
+      html { scroll-behavior: smooth; }
+      .x-sec { scroll-margin-top: 76px; }
+      .x-nav {
+        position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 50;
+        display: flex; gap: 2px; padding: 4px; border-radius: var(--r-pill);
+        background: rgba(29, 26, 69, 0.62); border: 1px solid var(--x-line); box-shadow: 0 8px 28px rgba(0, 0, 0, .35);
+        -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
+      }
+      .x-nav a {
+        display: inline-flex; align-items: center; height: var(--tap); padding: 0 16px; border-radius: var(--r-pill);
+        color: #fff; font: var(--type-label); text-decoration: none; white-space: nowrap; transition: background .2s;
+      }
+      .x-nav a:hover, .x-nav a:focus-visible { background: rgba(255, 255, 255, .14); }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
       @media (prefers-reduced-motion: reduce) { .x-skel, .x-fade, .x-hero img, .x-detail { animation: none; } .x-gauge .x-arc { transition: none; } }
     </style>
   </head>
   <body>
     <div class="page x-app" id="top">
+      <nav class="x-nav" aria-label="页面导航">
+        <a href="#place">地点</a>
+        <a href="#next">下一场</a>
+        <a href="#week">7天预报</a>
+      </nav>
       <header class="x-hero">
         <img src="sunset_hero.jpg" alt="城市天际线上空的火烧云" />
         <div class="x-hero__copy x-fade">
@@ -169,7 +189,7 @@
         </section>
       </main>
       <footer class="x-foot">
-        <p>经验算法，火烧云无法100%预测，1–2天内多模型一致时最可信。数据 Open-Meteo。非 sunsetbot 官方。</p>
+        <p>数据 Open-Meteo（ECMWF/GFS/ICON/CMA/JMA 集合计算）。</p>
         <a class="badge" href="https://hark.com/" target="_blank" rel="noopener"><span class="hark-mark"></span><span>built by hark</span></a>
       </footer>
     </div>
@@ -255,16 +275,26 @@
         const lon = (x) => (((x + 540) % 360) - 180).toFixed(3);
         const fu = `https://api.open-meteo.com/v1/forecast?latitude=${place.lat},${place.lat},${place.lat}&longitude=${lon(place.lon)},${lon(place.lon - d)},${lon(place.lon + d)}&hourly=cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability&daily=sunrise,sunset&timezone=auto&forecast_days=7&models=${MODELS.map((m) => m[0]).join(",")}`;
         const au = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${place.lat}&longitude=${place.lon}&hourly=aerosol_optical_depth&timezone=auto&forecast_days=5`;
+        const key = `xsh:${place.lat.toFixed(2)},${place.lon.toFixed(2)}`;
+        const store = (() => { try { return window.localStorage; } catch (e) { return null; } })();
         try {
           const [f, a] = await Promise.all([
-            getJson(fu, 2).catch(() => getJson(fu.replace(/models=.*$/, "models=ecmwf_ifs025,gfs_seamless,icon_seamless"), 2)),
+            getJson(fu, 3).catch(() => getJson(fu.replace(/models=.*$/, "models=ecmwf_ifs025,gfs_seamless,icon_seamless"), 2)),
             fetch(au).then((r) => (r.ok ? r.json() : null)).catch(() => null),
           ]);
           if (my !== token) return;
           utcOff = (f[0] && f[0].utc_offset_seconds) || 0;
           compute(f, a); render();
+          try { store && store.setItem(key, JSON.stringify({ at: Date.now(), f, a })); } catch (e) {}
         } catch (e) {
           if (my !== token) return;
+          let saved = null;
+          try { saved = store && JSON.parse(store.getItem(key) || "null"); } catch (err) {}
+          if (saved && Date.now() - saved.at < 6 * 3600e3) {
+            utcOff = (saved.f[0] && saved.f[0].utc_offset_seconds) || 0;
+            compute(saved.f, saved.a); render();
+            return;
+          }
           $("nextBox").innerHTML = `<aside class="callout" aria-label="加载失败"><p class="callout__head">加载失败</p><p class="callout__lead"><strong>没能拿到预报数据。</strong> 数据源可能请求过于频繁或网络不通，稍等片刻再试。</p><button class="btn" type="button" id="retry">重试</button></aside>`;
           $("weekBox").innerHTML = "";
           $("retry").onclick = () => load(current);
@@ -303,10 +333,11 @@
             vals.low.push(low); vals.mid.push(mid); vals.high.push(high); vals.rain.push(rain);
           }
           if (!models.length) { events.push({ type, day: j, t, past: t < nowLocal }); continue; }
-          const sc = models.map((x) => x.s), spread = Math.max(...sc) - Math.min(...sc);
-          let c = spread < 15 ? 0 : spread < 30 ? 1 : 2; if (j >= 2) c = Math.min(2, c + 1);
+          const hrs = (Date.parse(t + ":00Z") - Date.parse(nowLocal + ":00Z")) / 3.6e6;
+          const near = hrs >= -1 && hrs <= 12;
+          const sc = models.flatMap((x) => (near && (x.n === "EC" || x.n === "ICON") ? [x.s, x.s] : [x.s]));
           const v = { low: avg(vals.low), mid: avg(vals.mid), high: avg(vals.high), far: avg(vals.far), rain: avg(vals.rain), aod: ao };
-          events.push({ type, day: j, t, past: t < nowLocal, score: median(sc), models, conf: "高中低"[c], v, reason: reason(v, type) });
+          events.push({ type, day: j, t, past: t < nowLocal, score: median(sc), models, v, reason: reason(v, type) });
         }
       }
 
@@ -337,7 +368,6 @@
                <p class="x-next__lv">${LV[lvIdx(nx.score)][1]}</p>
                <p class="x-next__when">${dayName(nx)}${typeName(nx.type)} · ${fmtDate(nx.t)} ${nx.t.slice(11, 16)}</p>
                <p class="x-next__count" id="countdown"></p>
-               <div class="x-badges"><span class="x-badge">可信度 ${nx.conf}</span><span class="x-badge">${nx.models.length} 个模型</span></div>
              </div>
              <p class="x-next__reason">${nx.reason}</p></div>`;
           requestAnimationFrame(() => requestAnimationFrame(() => { const a = $("arc"); if (a) a.style.strokeDashoffset = C * (1 - nx.score / 100); }));
@@ -355,7 +385,7 @@
             pair.map((e) => {
               const k = events.indexOf(e);
               if (e.score == null) return `<button class="x-tile" type="button" disabled><span class="x-tile__top"><span>${typeName(e.type)}</span><span>${e.t ? e.t.slice(11, 16) : "—"}</span></span>无数据</button>`;
-              return `<button class="x-tile${e.past ? " is-past" : ""}" type="button" data-k="${k}" aria-pressed="false" style="--lc:var(--x-l${lvIdx(e.score)})"><span class="x-tile__top"><span>${typeName(e.type)} ${e.t.slice(11, 16)}</span><span>信${e.conf}</span></span><span class="x-tile__score">${e.score}<small>${LV[lvIdx(e.score)][1]}</small></span></button>`;
+              return `<button class="x-tile${e.past ? " is-past" : ""}" type="button" data-k="${k}" aria-pressed="false" style="--lc:var(--x-l${lvIdx(e.score)})"><span class="x-tile__top"><span>${typeName(e.type)} ${e.t.slice(11, 16)}</span></span><span class="x-tile__score">${e.score}<small>${LV[lvIdx(e.score)][1]}</small></span></button>`;
             }).join("") + "</div>";
         }
         $("weekBox").innerHTML = html + "</div>";
@@ -375,8 +405,7 @@
         $("detail").innerHTML = `<div class="x-detail x-card"><h3>${fmtDate(e.t)} ${typeName(e.type)} ${e.t.slice(11, 16)} · ${LV[lvIdx(e.score)][1]} ${e.score}</h3>
           <p class="x-next__reason">${e.reason}</p>
           ${bar("本地低云", v.low)}${bar("本地中云", v.mid)}${bar("本地高云", v.high)}${bar(side + "低+中云", v.far)}${bar("降水概率", v.rain)}${bar("气溶胶 AOD", v.aod, 1, v.aod != null ? v.aod.toFixed(2) : "")}
-          <div class="x-models">${e.models.map((m) => chip(m.s, m.n)).join("")}</div>
-          <p class="fineprint">各模型评分取中位数；可信度 ${e.conf}（分歧 ${Math.max(...e.models.map((m) => m.s)) - Math.min(...e.models.map((m) => m.s))} 分${e.day >= 2 ? "，第3天起降一级" : ""}）。时间为当地 ${tz}。</p></div>`;
+          <p class="fineprint">时间为当地 ${tz}。</p></div>`;
         if (scroll) $("detail").scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
 
