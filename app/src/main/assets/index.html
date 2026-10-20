@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>火烧云预测 新版</title>
+    <link
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      .x-search { position: relative; max-width: 560px; }
+      .x-search input {
+        width: 100%; box-sizing: border-box; height: var(--tap); padding: 0 18px;
+        border: 1px solid var(--stroke-primary); border-radius: var(--r-pill);
+        background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-body);
+      }
+      .x-results { list-style: none; margin: 8px 0 0; padding: 0; border: 1px solid var(--stroke-secondary); border-radius: var(--r-m); overflow: hidden; }
+      .x-results:empty { display: none; }
+      .x-results button {
+        display: block; width: 100%; min-height: var(--tap); padding: 10px 16px; text-align: left;
+        background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-body);
+        border: 0; border-bottom: 1px solid var(--stroke-secondary); cursor: pointer;
+      }
+      .x-results li:last-child button { border-bottom: 0; }
+      .x-results small { color: var(--text-secondary); font: var(--type-small); margin-left: 6px; }
+      .x-cities { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+      .x-cities button { cursor: pointer; font: var(--type-label); }
+      .x-cities button[aria-pressed="true"] { background: var(--fill-primary); color: var(--text-primary-on); border-color: var(--fill-primary); }
+      .x-place { font: var(--type-label); color: var(--text-secondary); margin: 12px 0 0; }
+      .x-next { background: var(--fill-tertiary); border-radius: var(--r-l); padding: 24px; }
+      .x-next__when { font: var(--type-label); color: var(--text-secondary); margin: 0; }
+      .x-next__row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+      .x-next__score { font: var(--type-display); color: var(--text-primary); }
+      .x-next__reason { font: var(--type-body); color: var(--text-primary); margin: 0; }
+      .x-lv { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: var(--r-pill); font: var(--type-tag); white-space: nowrap; }
+      .x-lv0 { background: var(--fill-primary-on); color: var(--text-secondary); box-shadow: inset 0 0 0 1px var(--stroke-primary); }
+      .x-lv1 { background: color-mix(in srgb, var(--fill-system-orange) 30%, var(--fill-primary-on)); color: var(--text-primary); }
+      .x-lv2 { background: var(--fill-system-orange); color: #111; }
+      .x-lv3 { background: color-mix(in srgb, var(--fill-system-orange), var(--fill-system-red)); color: #fff; }
+      .x-lv4 { background: var(--fill-system-red); color: #fff; }
+      .x-lv5 { background: color-mix(in srgb, var(--fill-system-red) 50%, #b000ff); color: #fff; }
+      .x-days { display: grid; gap: 8px; }
+      .x-day { display: grid; grid-template-columns: 64px 1fr 1fr; gap: 8px; align-items: stretch; }
+      .x-day__date { font: var(--type-label); color: var(--text-primary); align-self: center; }
+      .x-day__date small { display: block; font: var(--type-small); color: var(--text-secondary); }
+      .x-tile {
+        display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-height: var(--tap);
+        padding: 12px; border-radius: var(--r-m); border: 1px solid transparent; cursor: pointer;
+        background: var(--fill-tertiary); color: var(--text-primary); font: var(--type-small); text-align: left;
+      }
+      .x-tile b { font: var(--type-label); }
+      .x-tile.is-past { opacity: 0.55; }
+      .x-tile[aria-pressed="true"] { border-color: var(--fill-primary); }
+      .x-tile:disabled { cursor: default; color: var(--text-secondary); }
+      .x-detail { border: 1px solid var(--stroke-primary); border-radius: var(--r-l); padding: 24px; margin-top: 16px; }
+      .x-detail h3 { margin: 0 0 16px; font: var(--type-heading); }
+      .x-bar { display: grid; grid-template-columns: 96px 1fr 44px; gap: 10px; align-items: center; font: var(--type-small); color: var(--text-secondary); margin: 8px 0; }
+      .x-bar__track { height: 8px; border-radius: var(--r-pill); background: var(--fill-tertiary); overflow: hidden; }
+      .x-bar__fill { height: 100%; background: var(--fill-primary); border-radius: var(--r-pill); }
+      .x-bar b { color: var(--text-primary); text-align: right; font: var(--type-label); }
+      .x-models { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+      .x-skel { background: var(--fill-tertiary); border-radius: var(--r-m); min-height: 56px; animation: x-pulse 1.2s ease-in-out infinite; }
+      .x-skel--big { min-height: 160px; border-radius: var(--r-l); margin-bottom: 8px; }
+      @keyframes x-pulse { 50% { opacity: 0.5; } }
+      @media (prefers-reduced-motion: reduce) { .x-skel { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <header class="nav glass" data-auto></header>
+      <main class="main">
+        <section class="hero">
+          <img class="hero__img" src="sunset_hero.jpg" alt="城市天际线上空的火烧云" />
+          <div class="hero__copy">
+            <p class="hero__eyebrow">日出日落 · 火烧云</p>
+            <h1>火烧云预测</h1>
+            <p class="hero__sub">五模型集合 · 光路检测 · 7天日出日落</p>
+          </div>
+        </section>
+
+        <section class="section" id="place" data-nav="地点">
+          <div class="head"><h2>选一个地点</h2></div>
+          <div class="x-search">
+            <input id="q" type="search" placeholder="搜索城市，如 厦门" aria-label="搜索城市" autocomplete="off" />
+            <ul class="x-results" id="results"></ul>
+          </div>
+          <div class="x-cities" id="cities"></div>
+          <p class="x-place" id="placeLabel"></p>
+        </section>
+
+        <section class="section" id="next" data-nav="下一场">
+          <div class="head"><h2>下一场烧不烧</h2></div>
+          <div id="nextBox"></div>
+        </section>
+
+        <section class="section" id="week" data-nav="7天预报">
+          <div class="head">
+            <h2>7 天日出日落</h2>
+            <p class="head__sub">点任意一格看云量和各模型评分。</p>
+          </div>
+          <div id="weekBox"></div>
+          <div id="detail"></div>
+        </section>
+      </main>
+      <footer class="foot">
+        <p>经验算法，火烧云无法100%预测，1–2天内多模型一致时最可信。数据 Open-Meteo。非 sunsetbot 官方。</p>
+        <nav aria-label="返回各部分" data-auto></nav>
+        <a class="badge" href="https://hark.com/" target="_blank" rel="noopener"><span class="hark-mark"></span><span>built by hark</span></a>
+      </footer>
+    </div>
+    <script src="hark.js"></script>
+    <script>
+      const MODELS = [["ecmwf_ifs025", "EC"], ["gfs_seamless", "GFS"], ["icon_seamless", "ICON"], ["cma_grapes_global", "CMA"], ["jma_seamless", "JMA"]];
+      const CITIES = [["上海", 31.23, 121.47], ["北京", 39.9, 116.4], ["广州", 23.13, 113.26], ["深圳", 22.54, 114.06], ["杭州", 30.27, 120.15], ["成都", 30.57, 104.07], ["香港", 22.32, 114.17], ["新加坡", 1.29, 103.85]];
+      const LV = [[15, "不烧"], [35, "微烧"], [55, "小烧"], [75, "中烧"], [90, "大烧"], [101, "超级大烧"]];
+      const WK = "日一二三四五六";
+      const $ = (id) => document.getElementById(id);
+      let events = [], tz = "", token = 0, current = null;
+
+      const lvIdx = (s) => LV.findIndex((l) => s < l[0]);
+      const chip = (s, pre) => { const k = lvIdx(s); return `<span class="x-lv x-lv${k}">${pre ? pre + " " : ""}${pre ? s : LV[k][1]}</span>`; };
+      const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+      const median = (a) => { const b = [...a].sort((x, y) => x - y), n = b.length; return Math.round(n % 2 ? b[(n - 1) / 2] : (b[n / 2 - 1] + b[n / 2]) / 2); };
+      const fmtDate = (t) => { const d = new Date(t.slice(0, 10) + "T00:00Z"); return `${d.getUTCMonth() + 1}月${d.getUTCDate()}日`; };
+      const wk = (t) => "周" + WK[new Date(t.slice(0, 10) + "T00:00Z").getUTCDay()];
+
+      function renderCities() {
+        $("cities").innerHTML = CITIES.map((c, i) => `<button class="btn" type="button" data-i="${i}" aria-pressed="${current && current.name === c[0]}">${c[0]}</button>`).join("") +
+          `<button class="btn" type="button" id="geo">📍我的位置</button>`;
+      }
+      $("cities").addEventListener("click", (e) => {
+        const b = e.target.closest("button"); if (!b) return;
+        if (b.id === "geo") return locate();
+        const c = CITIES[b.dataset.i]; load({ name: c[0], lat: c[1], lon: c[2] });
+      });
+
+      function locate() {
+        $("placeLabel").textContent = "正在定位…";
+        try {
+          navigator.geolocation.getCurrentPosition(
+            (p) => load({ name: "我的位置", lat: +p.coords.latitude.toFixed(2), lon: +p.coords.longitude.toFixed(2) }),
+            () => ($("placeLabel").textContent = "无法获取位置，请搜索或选择城市。"),
+            { timeout: 10000 }
+          );
+        } catch (e) { $("placeLabel").textContent = "当前环境不支持定位，请搜索或选择城市。"; }
+      }
+
+      let deb;
+      $("q").addEventListener("input", (e) => {
+        clearTimeout(deb); const q = e.target.value.trim();
+        if (!q) { $("results").innerHTML = ""; return; }
+        deb = setTimeout(async () => {
+          try {
+            const r = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=zh`)).json();
+            const list = r.results || [];
+            $("results").innerHTML = list.length ? list.map((p, i) => `<li><button type="button" data-i="${i}">${p.name}<small>${[p.admin1, p.country].filter(Boolean).join(" · ")}</small></button></li>`).join("") : `<li><button type="button" disabled>没有找到“${q}”</button></li>`;
+            $("results").onclick = (ev) => {
+              const b = ev.target.closest("button[data-i]"); if (!b) return;
+              const p = list[b.dataset.i]; $("results").innerHTML = ""; $("q").value = "";
+              load({ name: p.name, lat: p.latitude, lon: p.longitude });
+            };
+          } catch (err) { $("results").innerHTML = `<li><button type="button" disabled>搜索失败，请稍后再试</button></li>`; }
+        }, 300);
+      });
+
+      function skeleton() {
+        $("nextBox").innerHTML = `<div class="x-skel x-skel--big"></div>`;
+        $("weekBox").innerHTML = `<div class="x-days">${'<div class="x-skel"></div>'.repeat(7)}</div>`;
+        $("detail").innerHTML = "";
+      }
+
+      const cache = {};
+      async function getJson(u, tries) {
+        if (cache[u]) return cache[u];
+        for (let n = 0; ; n++) {
+          const r = await fetch(u);
+          if (r.ok) return (cache[u] = await r.json());
+          if ((r.status !== 429 && r.status < 500) || n >= tries - 1) throw new Error(r.status);
+          await new Promise((ok) => setTimeout(ok, 1500 * 2 ** n));
+        }
+      }
+
+      async function load(place) {
+        current = place; renderCities();
+        $("placeLabel").textContent = `${place.name} · ${place.lat.toFixed(2)}, ${place.lon.toFixed(2)}`;
+        skeleton(); const my = ++token;
+        const d = +(150 / (111.32 * Math.cos((place.lat * Math.PI) / 180))).toFixed(3);
+        const lon = (x) => (((x + 540) % 360) - 180).toFixed(3);
+        const fu = `https://api.open-meteo.com/v1/forecast?latitude=${place.lat},${place.lat},${place.lat}&longitude=${lon(place.lon)},${lon(place.lon - d)},${lon(place.lon + d)}&hourly=cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability&daily=sunrise,sunset&timezone=auto&forecast_days=7&models=${MODELS.map((m) => m[0]).join(",")}`;
+        const au = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${place.lat}&longitude=${place.lon}&hourly=aerosol_optical_depth&timezone=auto&forecast_days=5`;
+        try {
+          const [f, a] = await Promise.all([
+            getJson(fu, 2).catch(() => getJson(fu.replace(/models=.*$/, "models=ecmwf_ifs025,gfs_seamless,icon_seamless"), 2)),
+            fetch(au).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+          ]);
+          if (my !== token) return;
+          compute(f, a); render();
+        } catch (e) {
+          if (my !== token) return;
+          $("nextBox").innerHTML = `<aside class="callout" aria-label="加载失败"><p class="callout__head">加载失败</p><p class="callout__lead"><strong>没能拿到预报数据。</strong> 数据源可能请求过于频繁或网络不通，稍等片刻再试。</p><button class="btn" type="button" id="retry">重试</button></aside>`;
+          $("weekBox").innerHTML = "";
+          $("retry").onclick = () => load(current);
+        }
+      }
+
+      function compute(f, a) {
+        const [L, W, E] = f, H = L.hourly, idx = {};
+        H.time.forEach((t, i) => (idx[t] = i));
+        const aod = {};
+        if (a && a.hourly) a.hourly.time.forEach((t, i) => (aod[t] = a.hourly.aerosol_optical_depth[i]));
+        tz = L.timezone_abbreviation || L.timezone || "";
+        const off = L.utc_offset_seconds || 0;
+        const nowLocal = new Date(Date.now() + off * 1000).toISOString().slice(0, 16);
+        const dayVal = (type, j) => { for (const k of Object.keys(L.daily)) if (k.startsWith(type) && L.daily[k][j]) return L.daily[k][j]; return null; };
+        events = [];
+        for (let j = 0; j < 7; j++) for (const type of ["sunrise", "sunset"]) {
+          const t = dayVal(type, j); if (!t) { events.push({ type, day: j, t: null }); continue; }
+          const dt = new Date(t + ":00Z"); dt.setUTCMinutes(dt.getUTCMinutes() + 30, 0, 0); dt.setUTCMinutes(0);
+          const i = idx[dt.toISOString().slice(0, 16)];
+          const far = (type === "sunset" ? W : E).hourly, ao = aod[H.time[i]];
+          const models = [], vals = { low: [], mid: [], high: [], far: [], rain: [] };
+          if (i !== undefined) for (const [m, n] of MODELS) {
+            const g = (h, v) => (h[v + "_" + m] || [])[i];
+            const low = g(H, "cloud_cover_low"), mid = g(H, "cloud_cover_mid"), high = g(H, "cloud_cover_high");
+            if (low == null || mid == null || high == null) continue;
+            const fl = g(far, "cloud_cover_low"), fm = g(far, "cloud_cover_mid"), rain = g(H, "precipitation_probability") ?? 0;
+            let s = 50; const mx = Math.max(mid, high);
+            s += mx >= 25 && mx <= 75 ? 30 : (mx >= 10 && mx < 25) || (mx > 75 && mx <= 90) ? 10 : -15;
+            s -= low > 60 ? 35 : low >= 30 ? 15 : 0;
+            const fa = fl != null && fm != null ? (fl + fm) / 2 : null;
+            if (fa != null) { s -= fa > 60 ? 30 : fa >= 40 ? 12 : 0; vals.far.push(fa); }
+            if (ao != null) s += ao < 0.2 ? 10 : ao > 0.5 ? -20 : 0;
+            if (rain > 60) s -= 20;
+            models.push({ n, s: Math.max(0, Math.min(100, s)) });
+            vals.low.push(low); vals.mid.push(mid); vals.high.push(high); vals.rain.push(rain);
+          }
+          if (!models.length) { events.push({ type, day: j, t, past: t < nowLocal }); continue; }
+          const sc = models.map((x) => x.s), spread = Math.max(...sc) - Math.min(...sc);
+          let c = spread < 15 ? 0 : spread < 30 ? 1 : 2; if (j >= 2) c = Math.min(2, c + 1);
+          const v = { low: avg(vals.low), mid: avg(vals.mid), high: avg(vals.high), far: avg(vals.far), rain: avg(vals.rain), aod: ao };
+          events.push({ type, day: j, t, past: t < nowLocal, score: median(sc), models, conf: "高中低"[c], v, reason: reason(v, type) });
+        }
+      }
+
+      function reason(v, type) {
+        const p = [], mx = Math.max(v.mid, v.high), side = type === "sunset" ? "西" : "东";
+        p.push(mx >= 25 && mx <= 75 ? `中高云适中（${Math.round(mx)}%）` : mx < 25 ? "中高云偏少，缺少“画布”" : "中高云过厚");
+        if (v.low > 60) p.push("本地低云厚，遮挡明显"); else if (v.low >= 30) p.push("本地有低云");
+        if (v.far != null) p.push(v.far > 60 ? `${side}侧光路被挡` : v.far >= 40 ? `${side}侧光路部分受阻` : `${side}侧光路通畅`);
+        if (v.rain > 60) p.push("降水概率高");
+        if (v.aod != null) p.push(v.aod < 0.2 ? "空气通透" : v.aod > 0.5 ? "气溶胶偏重" : "空气一般");
+        return p.join("，") + "。";
+      }
+
+      const typeName = (t) => (t === "sunrise" ? "日出" : "日落");
+      const dayName = (e) => (e.day === 0 ? "今天" : e.day === 1 ? "明天" : wk(e.t));
+
+      function render() {
+        const nx = events.find((e) => e.t && !e.past && e.score != null);
+        $("nextBox").innerHTML = nx
+          ? `<div class="x-next"><p class="x-next__when">${typeName(nx.type)} · ${dayName(nx)} ${fmtDate(nx.t)} ${nx.t.slice(11, 16)}（${tz}）</p>
+             <div class="x-next__row">${chip(nx.score)}<span class="x-next__score">${nx.score}</span><span class="pill">可信度 ${nx.conf}</span><span class="pill">${nx.models.length} 个模型</span></div>
+             <p class="x-next__reason">${nx.reason}</p></div>`
+          : `<p class="fineprint">暂无可用的预报。</p>`;
+        let html = '<div class="x-days">';
+        for (let j = 0; j < 7; j++) {
+          const pair = events.filter((e) => e.day === j), ref = pair.find((e) => e.t);
+          if (!ref) continue;
+          html += `<div class="x-day"><div class="x-day__date">${fmtDate(ref.t)}<small>${dayName(ref)}</small></div>` +
+            pair.map((e) => {
+              const k = events.indexOf(e);
+              if (e.score == null) return `<button class="x-tile" type="button" disabled><b>${typeName(e.type)} ${e.t ? e.t.slice(11, 16) : "—"}</b>无数据</button>`;
+              return `<button class="x-tile${e.past ? " is-past" : ""}" type="button" data-k="${k}" aria-pressed="false"><b>${typeName(e.type)} ${e.t.slice(11, 16)}</b>${chip(e.score)}<span>${e.score} 分 · 可信度${e.conf}</span></button>`;
+            }).join("") + "</div>";
+        }
+        $("weekBox").innerHTML = html + "</div>";
+        if (nx) detail(events.indexOf(nx), false);
+      }
+
+      $("weekBox").addEventListener("click", (e) => {
+        const b = e.target.closest(".x-tile[data-k]"); if (b) detail(+b.dataset.k, true);
+      });
+
+      function detail(k, scroll) {
+        const e = events[k], v = e.v;
+        document.querySelectorAll(".x-tile[data-k]").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.k === k));
+        const bar = (label, val, max = 100, txt) => val == null ? "" :
+          `<div class="x-bar"><span>${label}</span><div class="x-bar__track"><div class="x-bar__fill" style="width:${Math.min(100, (val / max) * 100)}%"></div></div><b>${txt || Math.round(val) + "%"}</b></div>`;
+        const side = e.type === "sunset" ? "西侧 150km" : "东侧 150km";
+        $("detail").innerHTML = `<div class="x-detail"><h3>${fmtDate(e.t)} ${typeName(e.type)} ${e.t.slice(11, 16)} · ${LV[lvIdx(e.score)][1]} ${e.score}</h3>
+          <p class="x-next__reason">${e.reason}</p>
+          ${bar("本地低云", v.low)}${bar("本地中云", v.mid)}${bar("本地高云", v.high)}${bar(side + "低+中云", v.far)}${bar("降水概率", v.rain)}${bar("气溶胶 AOD", v.aod, 1, v.aod != null ? v.aod.toFixed(2) : "")}
+          <div class="x-models">${e.models.map((m) => chip(m.s, m.n)).join("")}</div>
+          <p class="fineprint">各模型评分取中位数；可信度 ${e.conf}（分歧 ${Math.max(...e.models.map((m) => m.s)) - Math.min(...e.models.map((m) => m.s))} 分${e.day >= 2 ? "，第3天起降一级" : ""}）。时间为当地 ${tz}。</p></div>`;
+        if (scroll) $("detail").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      load({ name: "上海", lat: 31.23, lon: 121.47 });
+    </script>
+  </body>
+</html>
