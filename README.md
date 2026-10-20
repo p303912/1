@@ -7,6 +7,10 @@
 2. 下载 `XiaguangForecast.apk`，在安卓手机上点开安装（如提示"未知来源"，允许即可）。
 3. 首次打开会请求定位，用于预报你所在地；也可以直接搜索任意城市。
 
+**大陆网络加速下载**（始终是最新版，任选一个）：
+- https://ghfast.top/https://github.com/p20051230/1/releases/latest/download/XiaguangForecast.apk
+- https://gh-proxy.com/https://github.com/p20051230/1/releases/latest/download/XiaguangForecast.apk
+
 > 如果安装时提示签名冲突，先卸载旧版本再安装新版。
 
 ## 功能
