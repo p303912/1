@@ -19,7 +19,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: 霞光预报 v1.0.${{ github.run_number }}
+          name: 霞光 v1.0.${{ github.run_number }}
           body: 下载下面的 XiaguangForecast.apk，在安卓手机上点开安装即可。
           files: XiaguangForecast.apk
           make_latest: true
