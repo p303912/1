@@ -4,120 +4,184 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>火烧云预测 新版</title>
-    <link
-      rel="stylesheet"
-    />
+    <meta name="theme-color" content="#0f0c29" />
     <link rel="stylesheet" href="hark.css" />
-    <link rel="stylesheet" href="hark-hero.css" />
     <style>
-      .x-search { position: relative; max-width: 560px; }
-      .x-search input {
-        width: 100%; box-sizing: border-box; height: var(--tap); padding: 0 18px;
-        border: 1px solid var(--stroke-primary); border-radius: var(--r-pill);
-        background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-body);
+      :root, :root[data-theme] {
+        color-scheme: dark;
+        --sans: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", "Noto Sans CJK SC", Roboto, "Segoe UI", sans-serif;
+        --mono: ui-monospace, "Roboto Mono", monospace;
+        --x-glass: rgba(255, 255, 255, 0.08);
+        --x-line: rgba(255, 255, 255, 0.14);
+        --x-dim: rgba(255, 255, 255, 0.66);
+        --x-l0: #9a98b0; --x-l1: #ffc078; --x-l2: #ff9a3c; --x-l3: #ff5e3a; --x-l4: #e8304f; --x-l5: #e040c8;
       }
-      .x-results { list-style: none; margin: 8px 0 0; padding: 0; border: 1px solid var(--stroke-secondary); border-radius: var(--r-m); overflow: hidden; }
+      html, body { background: #0f0c29; color: #fff; overflow-x: hidden; }
+      body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: linear-gradient(170deg, #0f0c29 0%, #302b63 55%, #24243e 100%); }
+      .page.x-app { max-width: none; padding: 0 0 32px; gap: 0; }
+      .x-wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; display: grid; gap: 28px; min-width: 0; }
+      .x-card {
+        background: var(--x-glass); border: 1px solid var(--x-line); border-radius: 20px;
+        -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
+      }
+      @keyframes x-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+      .x-fade { animation: x-in 0.6s var(--ease-out, ease-out) both; }
+      .x-d1 { animation-delay: 0.08s; } .x-d2 { animation-delay: 0.16s; } .x-d3 { animation-delay: 0.24s; }
+
+      /* hero */
+      .x-hero { position: relative; height: 42vh; min-height: 260px; max-height: 460px; overflow: hidden; margin-bottom: -40px; }
+      .x-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: x-zoom 1.4s ease-out both; }
+      @keyframes x-zoom { from { transform: scale(1.06); opacity: 0; } to { transform: none; opacity: 1; } }
+      .x-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,12,41,.35) 0%, rgba(15,12,41,0) 30%, rgba(15,12,41,.55) 68%, #0f0c29 100%); }
+      .x-hero__copy { position: absolute; z-index: 1; left: 0; right: 0; bottom: 52px; max-width: 640px; margin: 0 auto; padding: 0 16px; }
+      .x-hero__place { display: inline-flex; align-items: center; gap: 6px; font: var(--type-label); color: #fff; margin-bottom: 8px; padding: 4px 12px; border-radius: var(--r-pill); background: #1d1a45; border: 1px solid var(--x-line); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+      .x-hero h1 { font-size: 44px; line-height: 1.05; font-weight: 600; letter-spacing: 0.04em; color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,.35); }
+      .x-hero__sub { font: var(--type-body); color: rgba(255,255,255,.85); margin-top: 6px; }
+
+      /* sections */
+      .x-sec { position: relative; display: grid; gap: 12px; min-width: 0; }
+      .x-h { font: var(--type-heading); color: #fff; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+      .x-h small { font: var(--type-small); color: var(--x-dim); }
+
+      /* search + chips */
+      .x-search { position: relative; }
+      .x-search::before { content: "🔍"; position: absolute; left: 16px; top: 0; height: var(--tap); display: flex; align-items: center; font-size: 15px; pointer-events: none; opacity: .85; }
+      .x-search input {
+        width: 100%; box-sizing: border-box; height: var(--tap); padding: 0 18px 0 44px;
+        border: 1px solid var(--x-line); border-radius: var(--r-pill); background: var(--x-glass); color: #fff; font: var(--type-body);
+        -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); outline: none; -webkit-appearance: none; appearance: none;
+      }
+      .x-search input::placeholder { color: var(--x-dim); }
+      .x-search input:focus { border-color: rgba(255,255,255,.4); background: rgba(255,255,255,.12); }
+      .x-results { list-style: none; margin: 8px 0 0; padding: 0; overflow: hidden; }
       .x-results:empty { display: none; }
       .x-results button {
-        display: block; width: 100%; min-height: var(--tap); padding: 10px 16px; text-align: left;
-        background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-body);
-        border: 0; border-bottom: 1px solid var(--stroke-secondary); cursor: pointer;
+        display: block; width: 100%; min-height: var(--tap); padding: 10px 18px; text-align: left;
+        background: transparent; color: #fff; font: var(--type-body); border: 0; border-bottom: 1px solid var(--x-line); cursor: pointer;
       }
       .x-results li:last-child button { border-bottom: 0; }
-      .x-results small { color: var(--text-secondary); font: var(--type-small); margin-left: 6px; }
-      .x-cities { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-      .x-cities button { cursor: pointer; font: var(--type-label); }
-      .x-cities button[aria-pressed="true"] { background: var(--fill-primary); color: var(--text-primary-on); border-color: var(--fill-primary); }
-      .x-place { font: var(--type-label); color: var(--text-secondary); margin: 12px 0 0; }
-      .x-next { background: var(--fill-tertiary); border-radius: var(--r-l); padding: 24px; }
-      .x-next__when { font: var(--type-label); color: var(--text-secondary); margin: 0; }
-      .x-next__row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
-      .x-next__score { font: var(--type-display); color: var(--text-primary); }
-      .x-next__reason { font: var(--type-body); color: var(--text-primary); margin: 0; }
-      .x-lv { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: var(--r-pill); font: var(--type-tag); white-space: nowrap; }
-      .x-lv0 { background: var(--fill-primary-on); color: var(--text-secondary); box-shadow: inset 0 0 0 1px var(--stroke-primary); }
-      .x-lv1 { background: color-mix(in srgb, var(--fill-system-orange) 30%, var(--fill-primary-on)); color: var(--text-primary); }
-      .x-lv2 { background: var(--fill-system-orange); color: #111; }
-      .x-lv3 { background: color-mix(in srgb, var(--fill-system-orange), var(--fill-system-red)); color: #fff; }
-      .x-lv4 { background: var(--fill-system-red); color: #fff; }
-      .x-lv5 { background: color-mix(in srgb, var(--fill-system-red) 50%, #b000ff); color: #fff; }
-      .x-days { display: grid; gap: 8px; }
-      .x-day { display: grid; grid-template-columns: 64px 1fr 1fr; gap: 8px; align-items: stretch; }
-      .x-day__date { font: var(--type-label); color: var(--text-primary); align-self: center; }
-      .x-day__date small { display: block; font: var(--type-small); color: var(--text-secondary); }
-      .x-tile {
-        display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-height: var(--tap);
-        padding: 12px; border-radius: var(--r-m); border: 1px solid transparent; cursor: pointer;
-        background: var(--fill-tertiary); color: var(--text-primary); font: var(--type-small); text-align: left;
+      .x-results small { color: var(--x-dim); font: var(--type-small); margin-left: 6px; }
+      .x-cities { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+      .x-cities::-webkit-scrollbar { display: none; }
+      .x-chip {
+        flex: 0 0 auto; height: var(--tap); min-width: var(--tap); padding: 0 16px; border-radius: var(--r-pill); cursor: pointer; scroll-snap-align: start;
+        background: #29245a; border: 1px solid var(--x-line); color: #fff; font: var(--type-label); white-space: nowrap;
+        transition: background .2s, color .2s;
       }
-      .x-tile b { font: var(--type-label); }
-      .x-tile.is-past { opacity: 0.55; }
-      .x-tile[aria-pressed="true"] { border-color: var(--fill-primary); }
-      .x-tile:disabled { cursor: default; color: var(--text-secondary); }
-      .x-detail { border: 1px solid var(--stroke-primary); border-radius: var(--r-l); padding: 24px; margin-top: 16px; }
-      .x-detail h3 { margin: 0 0 16px; font: var(--type-heading); }
-      .x-bar { display: grid; grid-template-columns: 96px 1fr 44px; gap: 10px; align-items: center; font: var(--type-small); color: var(--text-secondary); margin: 8px 0; }
-      .x-bar__track { height: 8px; border-radius: var(--r-pill); background: var(--fill-tertiary); overflow: hidden; }
-      .x-bar__fill { height: 100%; background: var(--fill-primary); border-radius: var(--r-pill); }
-      .x-bar b { color: var(--text-primary); text-align: right; font: var(--type-label); }
-      .x-models { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-      .x-skel { background: var(--fill-tertiary); border-radius: var(--r-m); min-height: 56px; animation: x-pulse 1.2s ease-in-out infinite; }
-      .x-skel--big { min-height: 160px; border-radius: var(--r-l); margin-bottom: 8px; }
-      @keyframes x-pulse { 50% { opacity: 0.5; } }
-      @media (prefers-reduced-motion: reduce) { .x-skel { animation: none; } }
+      .x-chip[aria-pressed="true"] { background: #fff; color: #1d1a45; border-color: #fff; }
+      .x-place { font: var(--type-small); color: var(--x-dim); }
+
+      /* next event */
+      .x-next { padding: 20px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px 20px; align-items: center; }
+      .x-gauge { position: relative; width: 128px; height: 128px; }
+      .x-gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+      .x-gauge circle { fill: none; stroke-width: 10; }
+      .x-gauge .x-track { stroke: rgba(255,255,255,.1); }
+      .x-gauge .x-arc { stroke-linecap: round; transition: stroke-dashoffset 1.2s var(--ease-out, ease-out); filter: drop-shadow(0 0 6px var(--lc)); }
+      .x-gauge__num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+      .x-gauge__num b { font-size: 40px; line-height: 1; font-weight: 600; color: #fff; }
+      .x-gauge__num span { font: var(--type-caption); color: var(--x-dim); margin-top: 4px; }
+      .x-next__lv { font-size: 26px; line-height: 1.2; font-weight: 600; color: var(--lc); }
+      .x-next__when { font: var(--type-label); color: #fff; margin-top: 6px; }
+      .x-next__count { font: var(--type-small); color: var(--x-dim); margin-top: 2px; }
+      .x-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+      .x-badge { font: var(--type-tag); padding: 3px 10px; border-radius: var(--r-pill); background: rgba(255,255,255,.12); color: #fff; white-space: nowrap; }
+      .x-next__reason { grid-column: 1 / -1; font: var(--type-body); color: rgba(255,255,255,.88); padding-top: 14px; border-top: 1px solid var(--x-line); }
+      @media (max-width: 380px) { .x-gauge { width: 108px; height: 108px; } .x-gauge__num b { font-size: 34px; } .x-next { gap: 14px; padding: 16px; } .x-next__lv { font-size: 22px; } }
+
+      /* level chips */
+      .x-lv { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--r-pill); font: var(--type-tag); white-space: nowrap; color: #fff; }
+      .x-lv0 { background: rgba(154,152,176,.28); color: #dcdbe8; }
+      .x-lv1 { background: var(--x-l1); color: #3a2200; }
+      .x-lv2 { background: var(--x-l2); color: #2a1300; }
+      .x-lv3 { background: var(--x-l3); }
+      .x-lv4 { background: var(--x-l4); }
+      .x-lv5 { background: linear-gradient(90deg, var(--x-l4), var(--x-l5)); }
+
+      /* 7-day */
+      .x-days { display: grid; gap: 8px; }
+      .x-day { display: grid; grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; padding: 8px; }
+      .x-day__date { font: var(--type-label); color: #fff; align-self: center; padding-left: 4px; }
+      .x-day__date small { display: block; font: var(--type-caption); color: var(--x-dim); }
+      .x-tile {
+        --lc: var(--x-l0);
+        display: flex; flex-direction: column; gap: 4px; align-items: flex-start; min-width: 0; min-height: var(--tap);
+        padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; cursor: pointer; text-align: left;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--lc) 34%, transparent), color-mix(in srgb, var(--lc) 10%, transparent));
+        color: #fff; font: var(--type-caption); transition: transform .15s, border-color .2s;
+      }
+      .x-tile:active { transform: scale(.97); }
+      .x-tile__top { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 6px; font: var(--type-caption); color: var(--x-dim); }
+      .x-tile__score { font-size: 22px; line-height: 1.1; font-weight: 600; color: #fff; }
+      .x-tile__score small { font: var(--type-tag); color: var(--lc); margin-left: 4px; filter: brightness(1.25); }
+      .x-tile.is-past { opacity: 0.45; }
+      .x-tile[aria-pressed="true"] { border-color: rgba(255,255,255,.7); }
+      .x-tile:disabled { cursor: default; color: var(--x-dim); background: rgba(255,255,255,.04); }
+
+      /* detail */
+      .x-detail { padding: 20px; margin-top: 12px; animation: x-in .45s ease-out both; }
+      .x-detail h3 { margin: 0 0 8px; font: var(--type-heading); color: #fff; }
+      .x-detail .x-next__reason { border: 0; padding: 0 0 8px; }
+      .x-bar { display: grid; grid-template-columns: 96px minmax(0, 1fr) 40px; gap: 10px; align-items: center; font: var(--type-small); color: var(--x-dim); margin: 10px 0; }
+      .x-bar__track { height: 6px; border-radius: var(--r-pill); background: rgba(255,255,255,.1); overflow: hidden; }
+      .x-bar__fill { height: 100%; background: linear-gradient(90deg, var(--x-l1), var(--x-l3), var(--x-l5)); border-radius: var(--r-pill); }
+      .x-bar b { color: #fff; text-align: right; font: var(--type-label); }
+      .x-models { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 10px; }
+      .x-detail .fineprint { color: var(--x-dim); }
+
+      .x-skel { background: rgba(255,255,255,.07); border-radius: 20px; min-height: 60px; animation: x-pulse 1.2s ease-in-out infinite; }
+      .x-skel--big { min-height: 190px; }
+      @keyframes x-pulse { 50% { opacity: 0.45; } }
+      .x-foot { max-width: 640px; margin: 36px auto 0; padding: 20px 16px 0; border-top: 1px solid var(--x-line); display: grid; gap: 14px; font: var(--type-caption); color: var(--x-dim); }
+      .x-foot .badge { justify-self: start; }
+      @media (prefers-reduced-motion: reduce) { .x-skel, .x-fade, .x-hero img, .x-detail { animation: none; } .x-gauge .x-arc { transition: none; } }
     </style>
   </head>
   <body>
-    <div class="page" id="top">
-      <header class="nav glass" data-auto></header>
-      <main class="main">
-        <section class="hero">
-          <img class="hero__img" src="sunset_hero.jpg" alt="城市天际线上空的火烧云" />
-          <div class="hero__copy">
-            <p class="hero__eyebrow">日出日落 · 火烧云</p>
-            <h1>火烧云预测</h1>
-            <p class="hero__sub">五模型集合 · 光路检测 · 7天日出日落</p>
-          </div>
-        </section>
-
-        <section class="section" id="place" data-nav="地点">
-          <div class="head"><h2>选一个地点</h2></div>
+    <div class="page x-app" id="top">
+      <header class="x-hero">
+        <img src="sunset_hero.jpg" alt="城市天际线上空的火烧云" />
+        <div class="x-hero__copy x-fade">
+          <p class="x-hero__place" id="heroPlace">📍 上海</p>
+          <h1>霞光</h1>
+          <p class="x-hero__sub">火烧云预报 · 五模型集合</p>
+        </div>
+      </header>
+      <main class="x-wrap">
+        <section class="x-sec x-fade x-d1" id="place" aria-label="选一个地点">
           <div class="x-search">
             <input id="q" type="search" placeholder="搜索城市，如 厦门" aria-label="搜索城市" autocomplete="off" />
-            <ul class="x-results" id="results"></ul>
+            <ul class="x-results x-card" id="results"></ul>
           </div>
           <div class="x-cities" id="cities"></div>
           <p class="x-place" id="placeLabel"></p>
         </section>
 
-        <section class="section" id="next" data-nav="下一场">
-          <div class="head"><h2>下一场烧不烧</h2></div>
+        <section class="x-sec x-fade x-d2" id="next">
+          <h2 class="x-h">下一场烧不烧</h2>
           <div id="nextBox"></div>
         </section>
 
-        <section class="section" id="week" data-nav="7天预报">
-          <div class="head">
-            <h2>7 天日出日落</h2>
-            <p class="head__sub">点任意一格看云量和各模型评分。</p>
-          </div>
+        <section class="x-sec x-fade x-d3" id="week">
+          <h2 class="x-h">7 天日出日落 <small>点格子看详情</small></h2>
           <div id="weekBox"></div>
           <div id="detail"></div>
         </section>
       </main>
-      <footer class="foot">
+      <footer class="x-foot">
         <p>经验算法，火烧云无法100%预测，1–2天内多模型一致时最可信。数据 Open-Meteo。非 sunsetbot 官方。</p>
-        <nav aria-label="返回各部分" data-auto></nav>
         <a class="badge" href="https://hark.com/" target="_blank" rel="noopener"><span class="hark-mark"></span><span>built by hark</span></a>
       </footer>
     </div>
     <script src="hark.js"></script>
+    <script>document.documentElement.setAttribute("data-theme", "dark");</script>
     <script>
       const MODELS = [["ecmwf_ifs025", "EC"], ["gfs_seamless", "GFS"], ["icon_seamless", "ICON"], ["cma_grapes_global", "CMA"], ["jma_seamless", "JMA"]];
       const CITIES = [["上海", 31.23, 121.47], ["北京", 39.9, 116.4], ["广州", 23.13, 113.26], ["深圳", 22.54, 114.06], ["杭州", 30.27, 120.15], ["成都", 30.57, 104.07], ["香港", 22.32, 114.17], ["新加坡", 1.29, 103.85]];
       const LV = [[15, "不烧"], [35, "微烧"], [55, "小烧"], [75, "中烧"], [90, "大烧"], [101, "超级大烧"]];
       const WK = "日一二三四五六";
       const $ = (id) => document.getElementById(id);
-      let events = [], tz = "", token = 0, current = null;
+      let events = [], tz = "", token = 0, current = null, utcOff = 0, nextAt = null;
 
       const lvIdx = (s) => LV.findIndex((l) => s < l[0]);
       const chip = (s, pre) => { const k = lvIdx(s); return `<span class="x-lv x-lv${k}">${pre ? pre + " " : ""}${pre ? s : LV[k][1]}</span>`; };
@@ -127,8 +191,8 @@
       const wk = (t) => "周" + WK[new Date(t.slice(0, 10) + "T00:00Z").getUTCDay()];
 
       function renderCities() {
-        $("cities").innerHTML = CITIES.map((c, i) => `<button class="btn" type="button" data-i="${i}" aria-pressed="${current && current.name === c[0]}">${c[0]}</button>`).join("") +
-          `<button class="btn" type="button" id="geo">📍我的位置</button>`;
+        $("cities").innerHTML = `<button class="x-chip" type="button" id="geo" aria-pressed="${!!current && current.name === "我的位置"}">📍 我的位置</button>` +
+          CITIES.map((c, i) => `<button class="x-chip" type="button" data-i="${i}" aria-pressed="${!!current && current.name === c[0]}">${c[0]}</button>`).join("");
       }
       $("cities").addEventListener("click", (e) => {
         const b = e.target.closest("button"); if (!b) return;
@@ -185,6 +249,7 @@
       async function load(place) {
         current = place; renderCities();
         $("placeLabel").textContent = `${place.name} · ${place.lat.toFixed(2)}, ${place.lon.toFixed(2)}`;
+        $("heroPlace").textContent = `📍 ${place.name}`;
         skeleton(); const my = ++token;
         const d = +(150 / (111.32 * Math.cos((place.lat * Math.PI) / 180))).toFixed(3);
         const lon = (x) => (((x + 540) % 360) - 180).toFixed(3);
@@ -196,6 +261,7 @@
             fetch(au).then((r) => (r.ok ? r.json() : null)).catch(() => null),
           ]);
           if (my !== token) return;
+          utcOff = (f[0] && f[0].utc_offset_seconds) || 0;
           compute(f, a); render();
         } catch (e) {
           if (my !== token) return;
@@ -259,20 +325,37 @@
 
       function render() {
         const nx = events.find((e) => e.t && !e.past && e.score != null);
-        $("nextBox").innerHTML = nx
-          ? `<div class="x-next"><p class="x-next__when">${typeName(nx.type)} · ${dayName(nx)} ${fmtDate(nx.t)} ${nx.t.slice(11, 16)}（${tz}）</p>
-             <div class="x-next__row">${chip(nx.score)}<span class="x-next__score">${nx.score}</span><span class="pill">可信度 ${nx.conf}</span><span class="pill">${nx.models.length} 个模型</span></div>
-             <p class="x-next__reason">${nx.reason}</p></div>`
-          : `<p class="fineprint">暂无可用的预报。</p>`;
+        const R = 52, C = 2 * Math.PI * R;
+        if (nx) {
+          const lc = `var(--x-l${lvIdx(nx.score)})`;
+          $("nextBox").innerHTML = `<div class="x-next x-card x-fade" style="--lc:${lc}">
+             <div class="x-gauge" role="img" aria-label="评分 ${nx.score} 分，${LV[lvIdx(nx.score)][1]}">
+               <svg viewBox="0 0 128 128"><circle class="x-track" cx="64" cy="64" r="${R}"/><circle class="x-arc" id="arc" cx="64" cy="64" r="${R}" stroke="${lc}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
+               <div class="x-gauge__num"><b>${nx.score}</b><span>/ 100</span></div>
+             </div>
+             <div>
+               <p class="x-next__lv">${LV[lvIdx(nx.score)][1]}</p>
+               <p class="x-next__when">${dayName(nx)}${typeName(nx.type)} · ${fmtDate(nx.t)} ${nx.t.slice(11, 16)}</p>
+               <p class="x-next__count" id="countdown"></p>
+               <div class="x-badges"><span class="x-badge">可信度 ${nx.conf}</span><span class="x-badge">${nx.models.length} 个模型</span></div>
+             </div>
+             <p class="x-next__reason">${nx.reason}</p></div>`;
+          requestAnimationFrame(() => requestAnimationFrame(() => { const a = $("arc"); if (a) a.style.strokeDashoffset = C * (1 - nx.score / 100); }));
+          nextAt = Date.parse(nx.t + ":00Z") - utcOff * 1000;
+          tick();
+        } else {
+          nextAt = null;
+          $("nextBox").innerHTML = `<p class="x-place">暂无可用的预报。</p>`;
+        }
         let html = '<div class="x-days">';
         for (let j = 0; j < 7; j++) {
           const pair = events.filter((e) => e.day === j), ref = pair.find((e) => e.t);
           if (!ref) continue;
-          html += `<div class="x-day"><div class="x-day__date">${fmtDate(ref.t)}<small>${dayName(ref)}</small></div>` +
+          html += `<div class="x-day x-card x-fade" style="animation-delay:${j * 0.05}s"><div class="x-day__date">${fmtDate(ref.t)}<small>${dayName(ref)}</small></div>` +
             pair.map((e) => {
               const k = events.indexOf(e);
-              if (e.score == null) return `<button class="x-tile" type="button" disabled><b>${typeName(e.type)} ${e.t ? e.t.slice(11, 16) : "—"}</b>无数据</button>`;
-              return `<button class="x-tile${e.past ? " is-past" : ""}" type="button" data-k="${k}" aria-pressed="false"><b>${typeName(e.type)} ${e.t.slice(11, 16)}</b>${chip(e.score)}<span>${e.score} 分 · 可信度${e.conf}</span></button>`;
+              if (e.score == null) return `<button class="x-tile" type="button" disabled><span class="x-tile__top"><span>${typeName(e.type)}</span><span>${e.t ? e.t.slice(11, 16) : "—"}</span></span>无数据</button>`;
+              return `<button class="x-tile${e.past ? " is-past" : ""}" type="button" data-k="${k}" aria-pressed="false" style="--lc:var(--x-l${lvIdx(e.score)})"><span class="x-tile__top"><span>${typeName(e.type)} ${e.t.slice(11, 16)}</span><span>信${e.conf}</span></span><span class="x-tile__score">${e.score}<small>${LV[lvIdx(e.score)][1]}</small></span></button>`;
             }).join("") + "</div>";
         }
         $("weekBox").innerHTML = html + "</div>";
@@ -289,13 +372,22 @@
         const bar = (label, val, max = 100, txt) => val == null ? "" :
           `<div class="x-bar"><span>${label}</span><div class="x-bar__track"><div class="x-bar__fill" style="width:${Math.min(100, (val / max) * 100)}%"></div></div><b>${txt || Math.round(val) + "%"}</b></div>`;
         const side = e.type === "sunset" ? "西侧 150km" : "东侧 150km";
-        $("detail").innerHTML = `<div class="x-detail"><h3>${fmtDate(e.t)} ${typeName(e.type)} ${e.t.slice(11, 16)} · ${LV[lvIdx(e.score)][1]} ${e.score}</h3>
+        $("detail").innerHTML = `<div class="x-detail x-card"><h3>${fmtDate(e.t)} ${typeName(e.type)} ${e.t.slice(11, 16)} · ${LV[lvIdx(e.score)][1]} ${e.score}</h3>
           <p class="x-next__reason">${e.reason}</p>
           ${bar("本地低云", v.low)}${bar("本地中云", v.mid)}${bar("本地高云", v.high)}${bar(side + "低+中云", v.far)}${bar("降水概率", v.rain)}${bar("气溶胶 AOD", v.aod, 1, v.aod != null ? v.aod.toFixed(2) : "")}
           <div class="x-models">${e.models.map((m) => chip(m.s, m.n)).join("")}</div>
           <p class="fineprint">各模型评分取中位数；可信度 ${e.conf}（分歧 ${Math.max(...e.models.map((m) => m.s)) - Math.min(...e.models.map((m) => m.s))} 分${e.day >= 2 ? "，第3天起降一级" : ""}）。时间为当地 ${tz}。</p></div>`;
         if (scroll) $("detail").scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
+
+      function tick() {
+        const el = $("countdown"); if (!el || nextAt == null) return;
+        const m = Math.round((nextAt - Date.now()) / 60000);
+        if (m <= 0) { el.textContent = "正在发生"; return; }
+        const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+        el.textContent = "还有 " + (d ? d + " 天 " : "") + (d || h ? h + " 小时 " : "") + mm + " 分钟";
+      }
+      setInterval(tick, 30000);
 
       load({ name: "上海", lat: 31.23, lon: 121.47 });
     </script>
