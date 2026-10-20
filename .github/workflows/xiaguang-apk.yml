@@ -1,7 +1,7 @@
 name: xiaguang-apk
 on:
   push:
-    branches: [xiaguang-app]
+    branches: [main]
   workflow_dispatch:
 permissions: { contents: write }
 jobs:
@@ -15,8 +15,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
         with: { gradle-version: '8.7' }
       - run: gradle assembleDebug --no-daemon
-      - name: commit apk
-        run: |
-          mkdir -p apk && cp app/build/outputs/apk/debug/app-debug.apk apk/XiaguangForecast.apk
-          git config user.name "xiaguang-bot"; git config user.email "bot@users.noreply.github.com"
-          git add apk/XiaguangForecast.apk && git commit -m "apk build [skip ci]" && git push
+      - run: cp app/build/outputs/apk/debug/app-debug.apk XiaguangForecast.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: 霞光预报 v1.0.${{ github.run_number }}
+          body: 下载下面的 XiaguangForecast.apk，在安卓手机上点开安装即可。
+          files: XiaguangForecast.apk
+          make_latest: true
