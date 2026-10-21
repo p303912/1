@@ -20,5 +20,9 @@ public class MainActivity extends Activity {
     setContentView(web);
     web.loadUrl("file:///android_asset/index.html");
   }
+  @Override public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+    for (int r : res) if (r == 0) { if (web != null) web.evaluateJavascript("locate(current)", null); break; }
+  }
   @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 }
+
