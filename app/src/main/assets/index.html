@@ -149,7 +149,7 @@
       <header class="x-hero">
         <img src="sunset_hero.jpg" alt="城市天际线上空的火烧云" />
         <div class="x-hero__copy x-fade">
-          <p class="x-hero__place" id="heroPlace">📍 上海</p>
+          <p class="x-hero__place" id="heroPlace">📍 定位中…</p>
           <h1>霞光</h1>
           <p class="x-hero__sub">火烧云预报 · 五模型集合</p>
         </div>
@@ -206,8 +206,9 @@
         const c = CITIES[b.dataset.i]; load({ name: c[0], lat: c[1], lon: c[2] });
       });
 
-      function locate() {
+      function locate(fallback) {
         $("placeLabel").textContent = "正在定位…";
+        const fail = (msg) => fallback ? load(fallback) : ($("placeLabel").textContent = msg);
         try {
           navigator.geolocation.getCurrentPosition(
             async (p) => {
@@ -222,10 +223,10 @@
               } catch (e) {}
               load({ name, lat, lon, geo: true });
             },
-            () => ($("placeLabel").textContent = "无法获取位置，请搜索或选择城市。"),
-            { timeout: 10000 }
+            () => fail("无法获取位置，请搜索或选择城市。"),
+            { timeout: 10000, maximumAge: 600000 }
           );
-        } catch (e) { $("placeLabel").textContent = "当前环境不支持定位，请搜索或选择城市。"; }
+        } catch (e) { fail("当前环境不支持定位，请搜索或选择城市。"); }
       }
 
       let deb;
@@ -266,6 +267,7 @@
 
       async function load(place) {
         current = place; renderCities();
+        try { localStorage.setItem("xg:last", JSON.stringify(place)); } catch (e) {}
         $("placeLabel").textContent = `${place.name} · ${place.lat.toFixed(2)}, ${place.lon.toFixed(2)}`;
         $("heroPlace").textContent = `📍 ${place.name}`;
         skeleton(); const my = ++token;
@@ -416,7 +418,12 @@
       }
       setInterval(tick, 30000);
 
-      load({ name: "上海", lat: 31.23, lon: 121.47 });
+      (() => {
+        let last = null;
+        try { last = JSON.parse(localStorage.getItem("xg:last")); } catch (e) {}
+        if (!last || typeof last.lat !== "number") last = { name: "上海", lat: 31.23, lon: 121.47 };
+        locate(last);
+      })();
     </script>
   </body>
 </html>
