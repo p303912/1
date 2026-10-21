@@ -137,8 +137,9 @@
       .x-spots__msg { color: var(--x-dim); font: var(--type-small); padding: 8px 2px; }
       /* satellite */
       .x-sat { padding: 12px; }
-      .x-sat__img { position: relative; width: 100%; aspect-ratio: 860 / 540; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,.35); }
-      .x-sat__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .x-sat__img { position: relative; width: 100%; aspect-ratio: 5 / 3; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,.35); }
+      .x-sat__img img { position: absolute; display: block; max-width: none; width: 780%; height: 816.67%; left: 0; top: 0; }
+      .x-sat__dot { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #ff3b5c; box-shadow: 0 0 0 2px #fff; }
       .x-sat__msg { position: absolute; inset: 0; display: grid; place-items: center; color: var(--x-dim); font: var(--type-small); text-align: center; padding: 12px; }
       .x-sat__ctl { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; margin-top: 10px; }
       .x-sat__ctl input { width: 100%; accent-color: var(--x-l4); }
@@ -200,13 +201,13 @@
         <section class="x-sec x-fade x-d3" id="sat">
           <h2 class="x-h">卫星云图 <small>近 6 小时动画</small></h2>
           <div class="x-card x-sat">
-            <div class="x-sat__img"><img id="satImg" alt="风云四号B 中国区域卫星云图"><div class="x-sat__msg" id="satMsg">云图加载中…</div></div>
+            <div class="x-sat__img"><img id="satImg" alt="风云四号B 卫星云图"><span class="x-sat__dot"></span><div class="x-sat__msg" id="satMsg">云图加载中…</div></div>
             <div class="x-sat__ctl">
               <button class="x-chip" type="button" id="satPlay" aria-pressed="true">⏸ 暂停</button>
               <input type="range" id="satRange" min="0" max="0" value="0" aria-label="选择时间">
               <b id="satTime">--</b>
             </div>
-            <p class="fineprint">中央气象台 风云四号B 真彩色云图，覆盖中国，每 15 分钟一帧，夜间为红外合成。时间为北京时间。</p>
+            <p class="fineprint">中央气象台 风云四号B 真彩色云图，以所选位置为中心（红点），每 15 分钟一帧，夜间为红外合成。时间为北京时间。</p>
           </div>
         </section>
       </main>
@@ -303,6 +304,7 @@
       async function load(place) {
         current = place; renderCities();
         loadSpots(place);
+        satCenter(place);
         try { localStorage.setItem("xg:last", JSON.stringify(place)); } catch (e) {}
         $("placeLabel").textContent = `${place.name} · ${place.lat.toFixed(2)}, ${place.lon.toFixed(2)}`;
         $("heroPlace").textContent = `📍 ${place.name}`;
@@ -455,56 +457,56 @@
       setInterval(tick, 30000);
 
 
-      // 附近观赏点（OpenStreetMap）
-      const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter", "https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
+      // 附近观赏点（OpenStreetMap 离线数据，assets/spots.js）
       const DIRS = ["北", "东北", "东", "东南", "南", "西南", "西", "西北"];
-      let spotTok = 0;
+      const SPOT_T = { v: "观景点", m: "山顶", b: "海滩", p: "公园" };
+      let spotData = null, spotLoading = null;
       const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-      function spotType(t) {
-        if (t.tourism === "viewpoint") return "观景点";
-        if (t.natural === "peak") return "山顶";
-        if (t.natural === "beach") return "海滩";
-        return "公园";
+      function spotsReady() {
+        if (spotData) return Promise.resolve(spotData);
+        if (!spotLoading) spotLoading = new Promise((ok, no) => {
+          const sc = document.createElement("script"); sc.src = "spots.js";
+          sc.onload = () => {
+            const a = [];
+            for (const r of (window.SPOTS || "").split(";")) { const p = r.split("|"); if (p.length >= 3) a.push([p[0] / 1e4, p[1] / 1e4, p[2], p.slice(3).join("|")]); }
+            window.SPOTS = null; spotData = a; ok(a);
+          };
+          sc.onerror = no; document.head.appendChild(sc);
+        });
+        return spotLoading;
       }
       async function loadSpots(place) {
-        const my = ++spotTok, box = $("spotBox");
+        const box = $("spotBox");
         box.innerHTML = '<p class="x-spots__msg">查找中…</p>';
-        const key = `xg:spots:${place.lat.toFixed(2)},${place.lon.toFixed(2)}`;
-        let els = null;
-        try { const c = JSON.parse(localStorage.getItem(key)); if (c && Date.now() - c.t < 7 * 864e5) els = c.e; } catch (e) {}
-        if (!els) {
-          const L = `${place.lat},${place.lon}`;
-          const q = `[out:json][timeout:25];(nwr["tourism"="viewpoint"](around:15000,${L});node["natural"="peak"]["name"](around:15000,${L});nwr["natural"="beach"]["name"](around:15000,${L});nwr["leisure"="park"]["name"](around:5000,${L}););out center tags;`;
-          for (const u of OVERPASS) {
-            try {
-              const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 20000);
-              const r = await fetch(u, { method: "POST", body: "data=" + encodeURIComponent(q), headers: { "Content-Type": "application/x-www-form-urlencoded" }, signal: ctl.signal });
-              clearTimeout(tm);
-              if (!r.ok) continue;
-              const j = await r.json();
-              els = (j.elements || []).map((e) => ({ lat: e.lat ?? (e.center && e.center.lat), lon: e.lon ?? (e.center && e.center.lon), t: { name: (e.tags && (e.tags["name:zh"] || e.tags.name)) || "", tourism: e.tags && e.tags.tourism, natural: e.tags && e.tags.natural } })).filter((e) => e.lat != null);
-              try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), e: els })); } catch (e) {}
-              break;
-            } catch (e) {}
-          }
-        }
-        if (my !== spotTok) return;
-        if (!els) { box.innerHTML = '<p class="x-spots__msg">观赏点暂时加载不了，稍后重开 App 再试。</p>'; return; }
-        const R = 6371, rad = Math.PI / 180, la1 = place.lat * rad;
-        const list = els.map((e) => {
-          const la2 = e.lat * rad, dl = (e.lon - place.lon) * rad;
+        let data;
+        try { data = await spotsReady(); } catch (e) { box.innerHTML = '<p class="x-spots__msg">观赏点数据缺失。</p>'; return; }
+        if (current !== place) return;
+        const R = 6371, rad = Math.PI / 180, la1 = place.lat * rad, cosl = Math.cos(la1);
+        const near = [];
+        for (const e of data) {
+          const dy = e[0] - place.lat, dx = (e[1] - place.lon) * cosl;
+          if (Math.abs(dy) > 0.15 || Math.abs(dx) > 0.15) continue;
+          const la2 = e[0] * rad, dl = (e[1] - place.lon) * rad;
           const d = 2 * R * Math.asin(Math.sqrt(Math.sin((la2 - la1) / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dl / 2) ** 2));
+          if (d > 15 || (e[2] === "p" && d > 5)) continue;
           const b = (Math.atan2(Math.sin(dl) * Math.cos(la2), Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dl)) / rad + 360) % 360;
-          const type = spotType(e.t);
-          return { ...e, d, dir: DIRS[Math.round(b / 45) % 8], type, name: e.t.name || type };
-        }).sort((a, b) => a.d - b.d);
+          near.push({ lat: e[0], lon: e[1], d, dir: DIRS[Math.round(b / 45) % 8], type: SPOT_T[e[2]] || "观景点", name: e[3] || SPOT_T[e[2]], named: !!e[3] });
+        }
+        near.sort((a, b) => a.d - b.d);
         const seen = new Set(), out = [];
-        for (const s of list) { const k = s.type + s.name + (s.t.name ? "" : s.d.toFixed(1)); if (seen.has(k)) continue; seen.add(k); out.push(s); if (out.length >= 15) break; }
+        for (const s of near) { const k = s.type + s.name + (s.named ? "" : s.d.toFixed(1)); if (seen.has(k)) continue; seen.add(k); out.push(s); if (out.length >= 15) break; }
         if (!out.length) { box.innerHTML = '<p class="x-spots__msg">附近 15 公里内没找到观赏点。</p>'; return; }
         box.innerHTML = out.map((s) => `<a class="x-card x-spot" href="https://uri.amap.com/marker?position=${s.lon},${s.lat}&name=${encodeURIComponent(s.name)}&coordinate=wgs84&callnative=1"><span class="x-spot__tag">${s.type}</span><span class="x-spot__name">${esc(s.name)}</span><span class="x-spot__meta">${s.d.toFixed(1)}公里 · ${s.dir}</span></a>`).join("");
       }
       // 卫星云图（中央气象台 FY-4B）
       const sat = { frames: [], i: 0, timer: null };
+      // 图像为等经纬度：经度 61–139°E，纬度 5–54°N；窗口 10°×6°
+      function satCenter(place) {
+        const lon = Math.min(134, Math.max(66, place.lon)), lat = Math.min(51, Math.max(8, place.lat));
+        const im = $("satImg");
+        im.style.left = (-(lon - 5 - 61) / 10 * 100) + "%";
+        im.style.top = (-(54 - lat - 3) / 6 * 100) + "%";
+      }
       function satShow(i) {
         const f = sat.frames[i]; if (!f) return;
         sat.i = i; $("satImg").src = f.img; $("satTime").textContent = f.time; $("satRange").value = i;
@@ -519,7 +521,7 @@
           const h = await (await fetch("https://www.nmc.cn/publish/satellite/fy4b-visible.htm", { cache: "no-store" })).text();
           const seen = new Set(), fr = [];
           for (const m of h.matchAll(/data-img="([^"]+)"\s+data-time="([^"]+)"/g)) {
-            if (seen.has(m[1])) continue; seen.add(m[1]); fr.push({ img: m[1], time: m[2] });
+            if (seen.has(m[1])) continue; seen.add(m[1]); fr.push({ img: m[1].replace("/medium/", "/"), time: m[2] });
           }
           if (!fr.length) throw 0;
           sat.frames = fr.slice(0, 24).reverse();
