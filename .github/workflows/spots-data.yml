@@ -1,0 +1,24 @@
+name: spots-data
+on: { workflow_dispatch: }
+permissions: { contents: write, actions: write }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -q && sudo apt-get install -yq osmium-tool
+      - run: |
+          for r in china taiwan; do curl -sfL -o $r.pbf https://download.geofabrik.de/asia/$r-latest.osm.pbf; done
+          for r in china taiwan; do
+            osmium tags-filter $r.pbf nwr/tourism=viewpoint n/natural=peak nwr/natural=beach nwr/leisure=park -o $r-f.pbf
+            osmium export $r-f.pbf -f geojsonseq -o $r.geojsonseq --geometry-types=point,linestring,polygon
+          done
+          python3 tools/make_spots.py china.geojsonseq taiwan.geojsonseq > app/src/main/assets/spots.js
+          ls -l app/src/main/assets/spots.js
+      - run: |
+          git config user.name github-actions; git config user.email github-actions@users.noreply.github.com
+          git add app/src/main/assets/spots.js
+          git commit -m "更新附近观赏点离线数据 [skip ci]"
+          git push
+          gh workflow run xiaguang-apk.yml --ref main
+        env: { GH_TOKEN: "${{ github.token }}" }
