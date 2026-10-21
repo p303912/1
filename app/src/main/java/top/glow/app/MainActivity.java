@@ -2,6 +2,8 @@ package top.glow.app;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
 import android.webkit.*;
 public class MainActivity extends Activity {
   private WebView web;
@@ -13,7 +15,14 @@ public class MainActivity extends Activity {
     WebSettings s = web.getSettings();
     s.setJavaScriptEnabled(true); s.setDomStorageEnabled(true); s.setGeolocationEnabled(true);
     s.setAllowFileAccess(true); s.setAllowUniversalAccessFromFileURLs(true);
-    web.setWebViewClient(new WebViewClient());
+    web.setWebViewClient(new WebViewClient() {
+      @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
+        Uri u = r.getUrl();
+        if ("file".equals(u.getScheme())) return false;
+        try { startActivity(new Intent(Intent.ACTION_VIEW, u)); } catch (Exception e) {}
+        return true;
+      }
+    });
     web.setWebChromeClient(new WebChromeClient() {
       @Override public void onGeolocationPermissionsShowPrompt(String o, GeolocationPermissions.Callback cb) { cb.invoke(o, true, false); }
     });
