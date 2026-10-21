@@ -125,6 +125,16 @@
       .x-tile[aria-pressed="true"] { border-color: var(--x-tile-on); }
       .x-tile:disabled { cursor: default; color: var(--x-dim); background: var(--x-faint); }
 
+
+      /* satellite */
+      .x-sat { padding: 12px; }
+      .x-sat__img { position: relative; width: 100%; aspect-ratio: 860 / 540; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,.35); }
+      .x-sat__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .x-sat__msg { position: absolute; inset: 0; display: grid; place-items: center; color: var(--x-dim); font: var(--type-small); text-align: center; padding: 12px; }
+      .x-sat__ctl { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; margin-top: 10px; }
+      .x-sat__ctl input { width: 100%; accent-color: var(--x-l4); }
+      .x-sat__ctl b { font: var(--type-label); color: var(--x-text); white-space: nowrap; }
+      .x-sat .fineprint { margin: 8px 2px 0; color: var(--x-dim); font: var(--type-caption); }
       /* detail */
       .x-detail { padding: 20px; margin-top: 12px; animation: x-in .45s ease-out both; }
       .x-detail h3 { margin: 0 0 8px; font: var(--type-heading); color: var(--x-text); }
@@ -173,6 +183,18 @@
           <h2 class="x-h">7 天日出日落 <small>点格子看详情</small></h2>
           <div id="weekBox"></div>
           <div id="detail"></div>
+        </section>
+        <section class="x-sec x-fade x-d3" id="sat">
+          <h2 class="x-h">卫星云图 <small>近 6 小时动画</small></h2>
+          <div class="x-card x-sat">
+            <div class="x-sat__img"><img id="satImg" alt="风云四号B 中国区域卫星云图"><div class="x-sat__msg" id="satMsg">云图加载中…</div></div>
+            <div class="x-sat__ctl">
+              <button class="x-chip" type="button" id="satPlay" aria-pressed="true">⏸ 暂停</button>
+              <input type="range" id="satRange" min="0" max="0" value="0" aria-label="选择时间">
+              <b id="satTime">--</b>
+            </div>
+            <p class="fineprint">中央气象台 风云四号B 真彩色云图，覆盖中国，每 15 分钟一帧，夜间为红外合成。时间为北京时间。</p>
+          </div>
         </section>
       </main>
       <footer class="x-foot">
@@ -417,6 +439,39 @@
         el.textContent = "还有 " + (d ? d + " 天 " : "") + (d || h ? h + " 小时 " : "") + mm + " 分钟";
       }
       setInterval(tick, 30000);
+
+      // 卫星云图（中央气象台 FY-4B）
+      const sat = { frames: [], i: 0, timer: null };
+      function satShow(i) {
+        const f = sat.frames[i]; if (!f) return;
+        sat.i = i; $("satImg").src = f.img; $("satTime").textContent = f.time; $("satRange").value = i;
+      }
+      function satPlay(on) {
+        clearInterval(sat.timer); sat.timer = null;
+        $("satPlay").setAttribute("aria-pressed", on); $("satPlay").textContent = on ? "⏸ 暂停" : "▶ 播放";
+        if (on && sat.frames.length > 1) sat.timer = setInterval(() => satShow((sat.i + 1) % sat.frames.length), 450);
+      }
+      async function loadSat() {
+        try {
+          const h = await (await fetch("https://www.nmc.cn/publish/satellite/fy4b-visible.htm", { cache: "no-store" })).text();
+          const seen = new Set(), fr = [];
+          for (const m of h.matchAll(/data-img="([^"]+)"\s+data-time="([^"]+)"/g)) {
+            if (seen.has(m[1])) continue; seen.add(m[1]); fr.push({ img: m[1], time: m[2] });
+          }
+          if (!fr.length) throw 0;
+          sat.frames = fr.slice(0, 24).reverse();
+          sat.frames.forEach((f) => { const im = new Image(); im.src = f.img; });
+          $("satRange").max = sat.frames.length - 1;
+          $("satMsg").style.display = "none";
+          satShow(sat.frames.length - 1); satPlay(true);
+        } catch (e) { $("satMsg").textContent = "云图暂时加载不了，稍后重开 App 再试。"; }
+      }
+      $("satPlay").addEventListener("click", () => satPlay(!sat.timer));
+      $("satRange").addEventListener("input", (e) => { satPlay(false); satShow(+e.target.value); });
+      $("satImg").addEventListener("error", () => { $("satMsg").style.display = ""; $("satMsg").textContent = "这一帧加载失败"; });
+      $("satImg").addEventListener("load", () => { $("satMsg").style.display = "none"; });
+      loadSat();
+
 
       (() => {
         let last = null;
