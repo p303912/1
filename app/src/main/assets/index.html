@@ -109,8 +109,9 @@
       .x-lv5 { background: linear-gradient(90deg, var(--x-l4), var(--x-l5)); }
 
       /* 7-day */
-      .x-days { display: grid; gap: 8px; }
+      .x-days { display: grid; gap: 0; }
       .x-day { display: grid; grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; padding: 12px 0; }
+      .x-day + .x-day { border-top: 1px solid #262626; }
       .x-day__date { font: var(--type-label); color: var(--x-text); align-self: center; padding-left: 4px; }
       .x-day__date small { display: block; font: var(--type-caption); color: var(--x-dim); }
       .x-tile {
@@ -205,8 +206,7 @@
       .x-hero2__when { font-size: 13px; color: rgba(255, 255, 255, .85); }
       .x-hero2__reason { font-size: 14px; line-height: 1.55; color: rgba(255, 255, 255, .88); }
       .x-spark { width: 100%; height: 56px; display: block; }
-      .x-day.x-card, .x-detail.x-card { background: #121212; border: 1px solid #262626; border-radius: 20px; }
-      .x-day.x-card { padding: 10px; }
+      .x-detail.x-card { background: #121212; border: 1px solid #262626; border-radius: 20px; }
       .x-view[hidden] { display: none; }
       .x-tl { width: 100%; height: 84px; display: block; margin-top: 2px; }
       .x-tl__cap { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255, 255, 255, .75); margin-top: 2px; }
@@ -630,7 +630,7 @@
         for (let j = 0; j < 7; j++) {
           const pair = events.filter((e) => e.day === j), ref = pair.find((e) => e.t);
           if (!ref) continue;
-          html += `<div class="x-day x-card${noAnim ? "" : " x-fade"}"${noAnim ? "" : ` style="animation-delay:${j * 0.05}s"`}><div class="x-day__date">${fmtDate(ref.t)}<small>${dayName(ref)}</small></div>` +
+          html += `<div class="x-day${noAnim ? "" : " x-fade"}"${noAnim ? "" : ` style="animation-delay:${j * 0.05}s"`}><div class="x-day__date">${fmtDate(ref.t)}<small>${dayName(ref)}</small></div>` +
             pair.map((e) => {
               const k = events.indexOf(e);
               if (e.score == null) return `<button class="x-tile" type="button" disabled><span class="x-tile__top"><span>${typeName(e.type)}</span><span>${e.t ? e.t.slice(11, 16) : "—"}</span></span>无数据</button>`;
