@@ -49,6 +49,7 @@
 
       /* sections */
       .x-sec { position: relative; display: grid; gap: 12px; min-width: 0; }
+      #spots { margin-top: 10px; }
       .x-h { font: var(--type-heading); color: var(--x-text); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; letter-spacing: .03em; }
       .x-h small { font: var(--type-small); color: var(--x-dim); }
 
@@ -195,21 +196,25 @@
       .x-spark { width: 100%; height: 56px; display: block; }
       .x-detail.x-card { background: #121212; border: 1px solid #262626; border-radius: 20px; }
       .x-view[hidden] { display: none; }
+      .x-tophead[hidden] { display: none; }
       .x-tl { width: 100%; height: 84px; display: block; margin-top: 2px; }
       .x-tl__cap { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255, 255, 255, .75); margin-top: 2px; }
-      .x-trend { border-radius: 20px; background: #121212; border: 1px solid #262626; padding: 16px; display: grid; gap: 10px; margin-bottom: 12px; }
+      .x-trend { padding: 20px 0; display: grid; gap: 10px; }
+      .x-trend + .x-trend { border-top: 1px solid var(--x-line); }
       .x-trend h3 { font-size: 14px; font-weight: 600; color: #fafafa; display: flex; justify-content: space-between; }
       .x-trend h3 span { color: var(--x-dim); font-size: 12px; font-weight: 400; }
       .x-trend p { font-size: 13px; color: var(--x-dim); line-height: 1.5; }
       .x-trend p b { color: #fafafa; font-weight: 600; }
       .x-diffbars { display: flex; align-items: flex-end; gap: 6px; height: 56px; }
       .x-diffbars i { flex: 1; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, #fa7e1e, #d62976); min-height: 3px; }
-      .x-prof { border-radius: 20px; background: #121212; border: 1px solid #262626; padding: 6px 16px; margin-bottom: 12px; }
+      .x-prof { padding: 16px 0; }
+      .x-prof + .x-prof { border-top: 1px solid var(--x-line); }
       .x-prof h3 { font-size: 13px; color: var(--x-dim); font-weight: 600; padding: 10px 0 4px; }
       .x-prof__row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid #262626; font-size: 14px; color: #fafafa; }
       .x-prof__row:first-of-type { border-top: 0; }
       .x-prof__row span { flex: 1; }
       .x-prof__row small { color: var(--x-dim); font-size: 12px; }
+      .x-prof .x-chip { height: auto; min-width: 0; padding: 8px 0 8px 12px; border: 0; border-radius: 0; background: transparent; color: #fafafa; font-size: 13px; }
       .x-star { background: none; border: 0; color: #71717a; font-size: 17px; cursor: pointer; padding: 2px 6px; }
       .x-star.on { color: #fa7e1e; }
       .x-switch { width: 44px; height: 26px; border-radius: 999px; border: 0; background: #262626; position: relative; cursor: pointer; flex: 0 0 auto; }
@@ -299,6 +304,7 @@
         <script>
           function showView(name) {
             document.querySelectorAll('.x-view').forEach(function (v) { v.hidden = v.id !== 'view-' + name; });
+            var th = document.querySelector('.x-tophead'); if (th) th.hidden = name !== 'home';
             document.querySelectorAll('.x-tab').forEach(function (t) { t.classList.toggle('on', t.dataset.view === name); });
             window.scrollTo(0, 0);
           }
@@ -813,7 +819,7 @@
           const h = await (await fetch("https://www.nmc.cn/publish/satellite/fy4b-visible.htm", { cache: "no-store" })).text();
           const seen = new Set(), fr = [];
           for (const m of h.matchAll(/data-img="([^"]+)"\s+data-time="([^"]+)"/g)) {
-            if (seen.has(m[1])) continue; seen.add(m[1]); fr.push({ img: m[1].replace("/medium/", "/"), time: m[2] });
+            if (seen.has(m[1])) continue; seen.add(m[1]); fr.push({ img: m[1].replace("/medium/", "/"), time: m[2].replace(/\//g, " ") });
           }
           if (!fr.length) throw 0;
           sat.frames = fr.slice(0, 24).reverse();
