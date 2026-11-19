@@ -26,7 +26,7 @@
       html, body { background: var(--x-bg); color: var(--x-text); overflow-x: hidden; }
       body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--x-bg-grad); }
       .page.x-app { max-width: none; padding: 0 0 88px; gap: 0; }
-      .x-wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; display: grid; gap: 28px; min-width: 0; }
+      .x-wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; min-width: 0; }
       .x-card {
         background: transparent; border: 0; border-bottom: 1px solid var(--x-line); border-radius: 0; box-shadow: none;
         -webkit-backdrop-filter: none; backdrop-filter: none;
@@ -103,7 +103,7 @@
 
       /* 7-day */
       .x-days { display: grid; gap: 0; }
-      .x-day { display: grid; grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; padding: 12px 0; }
+      .x-day { display: grid; grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; padding: 18px 0; }
       .x-day + .x-day { border-top: 1px solid #262626; }
       .x-day__date { font: var(--type-label); color: var(--x-text); align-self: center; padding-left: 4px; }
       .x-day__date small { display: block; font: var(--type-caption); color: var(--x-dim); }
@@ -179,7 +179,7 @@
       .x-tab.on { opacity: 1; }
       .x-tab svg { display: block; }
       /* 高级版：大标题头、照片主卡、点阵数字、双卡、目标行、刷新胶囊 */
-      .x-tophead { max-width: 640px; margin: 0 auto; padding: 14px 16px 4px; display: flex; align-items: baseline; width: 100%; box-sizing: border-box; }
+      .x-tophead { max-width: 640px; margin: 0 auto; padding: 8px 16px 12px; display: flex; align-items: baseline; width: 100%; box-sizing: border-box; }
       .x-tophead__date { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--x-dim); }
       .x-tophead__refresh { margin-left: auto; padding: 10px 0 10px 16px; background: none; border: 0; font-size: 11px; letter-spacing: .08em; color: #fafafa; white-space: nowrap; cursor: pointer; }
       .x-tophead__refresh:active { opacity: .55; }
@@ -196,6 +196,7 @@
       .x-spark { width: 100%; height: 56px; display: block; }
       .x-detail.x-card { background: #121212; border: 1px solid #262626; border-radius: 20px; }
       .x-view[hidden] { display: none; }
+      #view-map, #view-trends, #view-profile { padding-top: 10px; }
       .x-tophead[hidden] { display: none; }
       .x-tl { width: 100%; height: 84px; display: block; margin-top: 2px; }
       .x-tl__cap { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255, 255, 255, .75); margin-top: 2px; }
@@ -720,7 +721,7 @@
         const n = new Date();
         const p = (v) => String(v).padStart(2, "0");
         const hd = $("headDate");
-        if (hd) hd.textContent = `${n.getFullYear()} ${p(n.getMonth() + 1)} ${p(n.getDate())} ${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+        if (hd) hd.textContent = `${n.getFullYear()} ${p(n.getMonth() + 1)} ${p(n.getDate())}`;
       }
       function tick() {
         clock();
