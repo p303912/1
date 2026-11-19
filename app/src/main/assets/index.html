@@ -104,23 +104,24 @@
 
       /* 7-day */
       .x-days { display: grid; gap: 0; }
-      .x-day { display: grid; grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; padding: 18px 0; }
+      .x-day { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; padding: 18px 0; }
       .x-day + .x-day { border-top: 1px solid #262626; }
-      .x-day__date { font: var(--type-label); color: var(--x-text); align-self: center; padding-left: 4px; }
+      .x-day__date { font: var(--type-label); color: var(--x-text); align-self: center; text-align: center; padding-left: 0; }
       .x-day__date small { display: block; font: var(--type-caption); color: var(--x-dim); }
       .x-tile {
         --lc: var(--x-l0);
-        display: flex; flex-direction: column; gap: 4px; align-items: flex-start; min-width: 0; min-height: var(--tap);
-        padding: 8px 0; border: 0; border-radius: 0; cursor: pointer; text-align: left;
+        display: flex; flex-direction: column; gap: 4px; align-items: center; min-width: 0; min-height: var(--tap);
+        padding: 8px 6px; border: 0; border-radius: 0; cursor: pointer; text-align: left;
         background: transparent;
         color: var(--x-text); font: var(--type-caption); transition: transform .15s, background-color .2s;
       }
       .x-tile:active { transform: scale(.97); }
-      .x-tile__top { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 6px; font: var(--type-caption); color: var(--x-dim); }
+      .x-tile__top { display: flex; justify-content: center; align-items: baseline; width: 100%; gap: 6px; font: var(--type-caption); color: var(--x-dim); }
       .x-tile__score { font-size: 22px; line-height: 1.1; font-weight: 600; color: var(--x-text); }
       .x-tile__score small { font: var(--type-tag); color: var(--lc); margin-left: 4px; filter: var(--x-tag-filter); }
       .x-tile.is-past { opacity: 0.45; }
-      .x-tile[aria-pressed="true"] { background: rgba(255, 255, 255, 0.05); }
+      .x-tile[aria-pressed="true"] { background: transparent; }
+      .x-tile[aria-pressed="true"] .x-tile__score { color: #fa7e1e; }
       .x-tile:disabled { cursor: default; color: var(--x-dim); background: var(--x-faint); }
 
 
@@ -200,7 +201,7 @@
       #view-home { padding-top: 12px; }
       .x-view { min-width: 0; width: 100%; }
       #view-profile, #view-profile .x-sec, #profBox, .x-prof { width: 100%; background: #000; }
-      #view-map, #view-trends, #view-profile { padding-top: 10px; }
+      #view-map, #view-trends, #view-profile, #view-detail, #view-compare { padding-top: 10px; }
       .x-tophead[hidden] { display: none; }
       .x-tl { width: 100%; height: 84px; display: block; margin-top: 2px; }
       .x-tl__cap { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255, 255, 255, .75); margin-top: 2px; }
@@ -215,7 +216,7 @@
       .x-prof { padding: 16px 0; }
       .x-prof + .x-prof { border-top: 0; }
       .x-prof h3 { font-size: 13px; color: #fafafa; font-weight: 600; padding: 10px 0 4px; }
-      .x-prof__row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 0; font-size: 14px; color: #fafafa; background: #000; }
+      .x-prof__row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid #262626; font-size: 14px; color: #fafafa; background: #000; }
       .x-prof__row:first-of-type { border-top: 0; }
       .x-prof__row span { flex: 1; }
       .x-prof__row small { color: #fafafa; font-size: 12px; }
@@ -226,6 +227,41 @@
       .x-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fafafa; transition: transform .18s ease; }
       .x-switch[aria-pressed="true"] { background: #fa7e1e; }
       .x-switch[aria-pressed="true"]::after { transform: translateX(18px); }
+      /* 详情页 / 对比页（2026-11-20 集成，复用已批准的预览设计；无顶栏时钟） */
+      .x-back { background: none; border: 0; color: #fafafa; font-size: 14px; padding: 14px 0 2px; cursor: pointer; text-align: left; }
+      .x-back:active { opacity: .55; }
+      .x-title { font-size: 22px; font-weight: 600; color: #fafafa; margin: 6px 0 0; }
+      .x-title small { display: block; font-size: 13px; font-weight: 400; color: var(--x-dim); margin-top: 4px; }
+      .x-scoreblock { padding: 20px 0 4px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 20px; align-items: center; }
+      .x-scoreblock .x-hero2__score { font-size: 40px; }
+      .x-prob { font: var(--type-label); color: var(--x-text); margin-top: 6px; }
+      .x-kv { display: grid; gap: 0; }
+      .x-kv__row { display: flex; align-items: center; gap: 10px; padding: 13px 0; font-size: 14px; color: #fafafa; }
+      .x-kv__row + .x-kv__row { border-top: 1px solid var(--x-line); }
+      .x-kv__row span { flex: 1; }
+      .x-kv__row b { font-weight: 600; color: #fafafa; text-align: right; }
+      .x-kv__row.dim b, .x-kv__row.dim span { color: var(--x-dim); font-weight: 400; }
+      .x-cmp2 { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0; padding: 20px 0 8px; }
+      .x-cmp2 > i { background: var(--x-line); }
+      .x-cmp2__col { text-align: center; display: grid; gap: 2px; justify-items: center; }
+      .x-cmp2__col .x-hero2__score { font-size: 40px; }
+      .x-cmp2__col .nm { font-size: 13px; color: var(--x-dim); }
+      .x-cmp2__col .lv { font-size: 15px; font-weight: 600; }
+      .x-cmp2__col.ec .lv { color: #fa7e1e; }
+      .x-cmptable { display: grid; gap: 0; }
+      .x-cmptable__row { display: grid; grid-template-columns: 64px 1fr 1fr; gap: 8px; align-items: center; padding: 12px 0; font-size: 14px; }
+      .x-cmptable__row + .x-cmptable__row { border-top: 1px solid var(--x-line); }
+      .x-cmptable__row .lb { color: var(--x-dim); font-size: 13px; }
+      .x-cmptable__row .v { text-align: right; color: #fafafa; }
+      .x-cmptable__row .v.ec { font-weight: 600; }
+      .x-cmptable__row.head { font-size: 12px; color: var(--x-dim); padding: 4px 0 8px; }
+      .x-cmptable__row.head .v { color: var(--x-dim); }
+      .x-legend { display: flex; gap: 16px; font-size: 12px; color: var(--x-dim); padding: 8px 0 0; }
+      .x-legend i { display: inline-block; width: 18px; height: 2px; vertical-align: middle; margin-right: 6px; }
+      .x-verdict { font-size: 14px; line-height: 1.6; color: var(--x-text-2); padding: 14px 0 0; border-top: 1px solid var(--x-line); margin-top: 14px; }
+      .x-verdict b { color: #fafafa; }
+      #view-detail .x-sec + .x-sec, #view-compare .x-sec + .x-sec { margin-top: 32px; }
+      .x-kv.link, .x-trend.link { cursor: pointer; }
     </style>
   </head>
   <body>
@@ -290,9 +326,15 @@
       </div>
       <div id="view-profile" class="x-view" hidden>
         <section class="x-sec">
-          <h2 class="x-h">我的 <small>设置</small></h2>
+          <h2 class="x-h">我的</h2>
           <div id="profBox"></div>
         </section>
+      </div>
+      <div id="view-detail" class="x-view" hidden>
+        <div id="detailBox"></div>
+      </div>
+      <div id="view-compare" class="x-view" hidden>
+        <div id="compareBox"></div>
       </div>
       </main>
       <footer class="x-foot">
@@ -426,7 +468,7 @@
         if (!lastF || !force) skeleton(); const my = ++token;
         const d = +(150 / (111.32 * Math.cos((place.lat * Math.PI) / 180))).toFixed(3);
         const lon = (x) => (((x + 540) % 360) - 180).toFixed(3);
-        const fu = `https://api.open-meteo.com/v1/forecast?latitude=${place.lat},${place.lat},${place.lat}&longitude=${lon(place.lon)},${lon(place.lon - d)},${lon(place.lon + d)}&hourly=cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability&daily=sunrise,sunset&timezone=auto&forecast_days=7&models=${MODELS.map((m) => m[0]).join(",")}`;
+        const fu = `https://api.open-meteo.com/v1/forecast?latitude=${place.lat},${place.lat},${place.lat}&longitude=${lon(place.lon)},${lon(place.lon - d)},${lon(place.lon + d)}&hourly=cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability,wind_speed_10m,wind_direction_10m,relative_humidity_2m&daily=sunrise,sunset&timezone=auto&forecast_days=7&models=${MODELS.map((m) => m[0]).join(",")}`;
         const au = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${place.lat}&longitude=${place.lon}&hourly=aerosol_optical_depth&timezone=auto&forecast_days=5`;
         const key = `xsh:${place.lat.toFixed(2)},${place.lon.toFixed(2)}`;
         const store = (() => { try { return window.localStorage; } catch (e) { return null; } })();
@@ -492,6 +534,7 @@
             const low = g(H, "cloud_cover_low"), mid = g(H, "cloud_cover_mid"), high = g(H, "cloud_cover_high");
             if (low == null || mid == null || high == null) continue;
             const fl = g(far, "cloud_cover_low"), fm = g(far, "cloud_cover_mid"), rain = g(H, "precipitation_probability") ?? 0;
+            const windSpd = g(H, "wind_speed_10m"), windDir = g(H, "wind_direction_10m"), hum = g(H, "relative_humidity_2m"), tot = g(H, "cloud_cover");
             let s = 50; const mx = Math.max(mid, high);
             s += mx >= 25 && mx <= 75 ? 30 : (mx >= 10 && mx < 25) || (mx > 75 && mx <= 90) ? 10 : -15;
             s -= low > 60 ? 35 : low >= 30 ? 15 : 0;
@@ -499,24 +542,25 @@
             if (fa != null) s -= fa > 60 ? 30 : fa >= 40 ? 12 : 0;
             if (ao != null) s += ao < 0.2 ? 10 : ao > 0.5 ? -20 : 0;
             if (rain > 60) s -= 20;
-            per[n] = { s: Math.max(0, Math.min(100, s)), low, mid, high, far: fa, rain };
+            per[n] = { s: Math.max(0, Math.min(100, s)), low, mid, high, far: fa, rain, windSpd, windDir, hum, tot };
           }
           const models = Object.entries(per).map(([n, p]) => ({ n, s: p.s }));
           if (!models.length) { events.push({ type, day: j, t, past: t < nowLocal }); continue; }
           const pick = selectVals(per, ao);
-          events.push({ type, day: j, t, past: t < nowLocal, score: pick.score, models, v: pick.v, used: pick.used, reason: reason(pick.v, type) });
+          events.push({ type, day: j, t, past: t < nowLocal, score: pick.score, models, v: pick.v, used: pick.used, reason: reason(pick.v, type), per });
         }
       }
 
       // v1.5 选模型规则：单模型直接用该模型原分；集合用两者均值；所选模型无数据时才用另一个，并标注。
       function selectVals(per, ao) {
         const avg = (k) => { const vs = [per.EC, per.GFS].filter(Boolean).map((p) => p[k]).filter((v) => v != null); return vs.length ? vs.reduce((x, y) => x + y, 0) / vs.length : null; };
+        const vOf = (p) => ({ low: p.low, mid: p.mid, high: p.high, far: p.far, rain: p.rain, aod: ao, windSpd: p.windSpd, windDir: p.windDir, hum: p.hum, tot: p.tot });
         const single = (n, other) => per[n]
-          ? { score: per[n].s, v: { low: per[n].low, mid: per[n].mid, high: per[n].high, far: per[n].far, rain: per[n].rain, aod: ao }, used: n }
-          : { score: per[other].s, v: { low: per[other].low, mid: per[other].mid, high: per[other].high, far: per[other].far, rain: per[other].rain, aod: ao }, used: other + "（" + n + "无数据）" };
+          ? { score: per[n].s, v: vOf(per[n]), used: n }
+          : { score: per[other].s, v: vOf(per[other]), used: other + "（" + n + "无数据）" };
         if (modelSel === "ec") return single("EC", "GFS");
         if (modelSel === "gfs") return single("GFS", "EC");
-        if (per.EC && per.GFS) return { score: Math.round((per.EC.s + per.GFS.s) / 2), v: { low: avg("low"), mid: avg("mid"), high: avg("high"), far: avg("far"), rain: avg("rain"), aod: ao }, used: "EC+GFS" };
+        if (per.EC && per.GFS) return { score: Math.round((per.EC.s + per.GFS.s) / 2), v: { low: avg("low"), mid: avg("mid"), high: avg("high"), far: avg("far"), rain: avg("rain"), aod: ao, windSpd: avg("windSpd"), hum: avg("hum"), tot: avg("tot"), windDir: per.EC.windDir != null ? per.EC.windDir : per.GFS.windDir }, used: "EC+GFS" };
         return single(per.EC ? "EC" : "GFS", per.EC ? "GFS" : "EC");
       }
       function reason(v, type) {
@@ -594,7 +638,7 @@
         }
         const labels = pts.map((q) => `<text x="${X(q.h * 60).toFixed(1)}" y="${H - 8}" font-size="10" fill="rgba(255,255,255,.65)" text-anchor="middle">${String(q.h).padStart(2, "0")}:00</text>`).join("");
         const fmt = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-        return `<svg class="x-tl" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="tlg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fa7e1e" stop-opacity=".35"/><stop offset="1" stop-color="#d62976" stop-opacity="0"/></linearGradient></defs><rect x="${b0.toFixed(1)}" y="${top}" width="${(b1 - b0).toFixed(1)}" height="${bot - top}" fill="rgba(250,126,30,.14)"/><path d="${area}" fill="url(#tlg)"/><path d="${line}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}<line x1="${sX.toFixed(1)}" y1="${top}" x2="${sX.toFixed(1)}" y2="${bot}" stroke="#fff" stroke-width="1" stroke-dasharray="4 3" opacity=".8"/>${nowDot}${labels}</svg><p class="x-tl__cap"><span>最佳观赏 ${fmt(sMin - 30)}–${fmt(sMin + 30)}</span><span>日落 ${nx.t.slice(11, 16)}</span></p>`;
+        return `<svg class="x-tl" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="tlg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fa7e1e" stop-opacity=".35"/><stop offset="1" stop-color="#d62976" stop-opacity="0"/></linearGradient></defs><rect x="${b0.toFixed(1)}" y="${top}" width="${(b1 - b0).toFixed(1)}" height="${bot - top}" fill="rgba(250,126,30,.14)"/><path d="${area}" fill="url(#tlg)"/><path d="${line}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}<line x1="${sX.toFixed(1)}" y1="${top}" x2="${sX.toFixed(1)}" y2="${bot}" stroke="#fff" stroke-width="1" stroke-dasharray="4 3" opacity=".8"/>${nowDot}${labels}</svg><p class="x-tl__cap"><span>最佳观赏 ${fmt(sMin - 30)}–${fmt(sMin + 30)}</span><span>${typeName(nx.type)} ${nx.t.slice(11, 16)}</span></p>`;
       }
       function render(noAnim) {
         const nx = events.find((e) => e.t && !e.past && e.score != null);
@@ -632,6 +676,7 @@
         $("weekBox").innerHTML = html + "</div>";
         if (nx) detail(events.indexOf(nx), false);
         renderTrends();
+        renderProfile();
       }
 
       function renderTrends() {
@@ -655,18 +700,24 @@
         box.innerHTML =
           `<div class="x-trend"><h3>日落指数趋势 <span>7 天</span></h3>${ssF.length > 1 ? sparkline(ssF, "spg-ss") : ""}<p>最高 <b>${Math.max.apply(null, ssF)} 分</b> · 最低 <b>${Math.min.apply(null, ssF)} 分</b></p></div>` +
           `<div class="x-trend"><h3>日出指数趋势 <span>7 天</span></h3>${srF.length > 1 ? sparkline(srF, "spg-sr") : ""}<p>最高 <b>${Math.max.apply(null, srF)} 分</b> · 最低 <b>${Math.min.apply(null, srF)} 分</b></p></div>` +
-          `<div class="x-trend"><h3>EC / GFS 差异 <span>日落 · 绝对分差</span></h3><div class="x-diffbars">${diffs.map((d) => `<i style="height:${Math.max(3, Math.round((d / mxD) * 52))}px" title="${d} 分"></i>`).join("")}</div><p>平均差异 <b>${avgD} 分</b> · ${avgD <= 10 ? "两模型较一致，预测较稳定" : avgD <= 20 ? "两模型有分歧，以 EC 为准更稳" : "两模型分歧较大，临近再看"}</p></div>` +
+          `<div class="x-trend link" data-open-compare="1"><h3>EC / GFS 差异 <span>日落 · 绝对分差</span></h3><div class="x-diffbars">${diffs.map((d) => `<i style="height:${Math.max(3, Math.round((d / mxD) * 52))}px" title="${d} 分"></i>`).join("")}</div><p>平均差异 <b>${avgD} 分</b> · ${avgD <= 10 ? "两模型较一致，预测较稳定" : avgD <= 20 ? "两模型有分歧，以 EC 为准更稳" : "两模型分歧较大，临近再看"}</p></div>` +
           `<div class="x-trend"><h3>最佳观赏日期</h3><p>${best.map((e) => `<b>${fmtDate(e.t)} ${dayName(e)}</b> 日落 <b>${e.score} 分 ${LV[lvIdx(e.score)][1]}</b>`).join("；")}</p></div>`;
       }
       $("weekBox").addEventListener("click", (e) => {
-        const b = e.target.closest(".x-tile[data-k]"); if (b) detail(+b.dataset.k, true);
+        const b = e.target.closest(".x-tile[data-k]"); if (b) openDetail(+b.dataset.k);
+      });
+      // 趋势页“EC / GFS 差异”卡片 → 打开对比页（下一场日落）
+      $("trendBox").addEventListener("click", (e) => {
+        if (!e.target.closest("[data-open-compare]")) return;
+        const nx = events.find((x) => x.t && !x.past && x.score != null && x.type === "sunset");
+        if (nx) openCompare(events.indexOf(nx));
       });
 
+      const bar = (label, val, max = 100, txt) => val == null ? "" :
+        `<div class="x-bar"><span>${label}</span><div class="x-bar__track"><div class="x-bar__fill" style="width:${Math.min(100, (val / max) * 100)}%"></div></div><b>${txt || Math.round(val) + "%"}</b></div>`;
       function detail(k, scroll) {
         const e = events[k], v = e.v;
         document.querySelectorAll(".x-tile[data-k]").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.k === k));
-        const bar = (label, val, max = 100, txt) => val == null ? "" :
-          `<div class="x-bar"><span>${label}</span><div class="x-bar__track"><div class="x-bar__fill" style="width:${Math.min(100, (val / max) * 100)}%"></div></div><b>${txt || Math.round(val) + "%"}</b></div>`;
         const side = e.type === "sunset" ? "西侧 150km" : "东侧 150km";
         $("detail").innerHTML = `<div class="x-detail x-card"><h3>${fmtDate(e.t)} ${typeName(e.type)} ${e.t.slice(11, 16)} · ${LV[lvIdx(e.score)][1]} ${e.score}</h3>
           <p class="x-next__reason">${e.reason}</p>
@@ -674,6 +725,90 @@
           ${bar("本地低云", v.low)}${bar("本地中云", v.mid)}${bar("本地高云", v.high)}${bar(side + "低+中云", v.far)}${bar("降水概率", v.rain)}${bar("气溶胶 AOD", v.aod, 1, v.aod != null ? v.aod.toFixed(2) : "")}
           <p class="fineprint">时间为当地 ${tz}。</p></div>`;
         if (scroll) $("detail").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      // ---- 详情页 / 对比页（2026-11-20 集成；全部用 compute()/events 的真实数据渲染）----
+      let detailK = null, compareK = null;
+      const windDirName = (deg) => { if (deg == null) return ""; const D = ["北", "东北", "东", "东南", "南", "西南", "西", "西北"]; return D[Math.round((((deg % 360) + 360) % 360) / 45) % 8] + "风"; };
+      const beaufort = (v) => { if (v == null) return ""; const th = [1, 6, 12, 20, 29, 39, 50, 62, 75, 89, 103, 118]; let lv = 0; for (const t of th) if (v >= t) lv++; return lv; };
+      const fmtWind = (spd, dir) => (spd == null ? "—" : `${windDirName(dir)} ${beaufort(spd)}级 · ${Math.round(spd)} km/h`);
+      const fmtWindShort = (spd, dir) => (spd == null ? "—" : `${windDirName(dir)} ${Math.round(spd)} km/h`);
+      // 当天 16:00 → 19:00 中云变化（用所选模型；集合用 EC）
+      function cloudChange(e) {
+        if (!lastF || !e || !e.t) return null;
+        const H = lastF[0].hourly; if (!H || !H.time) return null;
+        const mk = modelSel === "gfs" ? "gfs_seamless" : "ecmwf_ifs025";
+        const arr = H["cloud_cover_mid_" + mk]; if (!arr) return null;
+        const idx = {}; H.time.forEach((t, i) => (idx[t] = i));
+        const d = e.t.slice(0, 10);
+        const a = arr[idx[d + "T16:00"]], b = arr[idx[d + "T19:00"]];
+        if (a == null || b == null) return null;
+        return `16:00 中云 ${Math.round(a)}% → 19:00 中云 ${Math.round(b)}%`;
+      }
+      function openDetail(k) { detailK = k; renderDetail(); showView("detail"); }
+      function renderDetail() {
+        const box = $("detailBox"); if (!box) return;
+        const e = events[detailK];
+        if (!e || e.score == null) { box.innerHTML = `<p class="x-place">暂无该天的预报。</p>`; return; }
+        const v = e.v, lk = lvIdx(e.score);
+        const ecM = (e.models || []).find((m) => m.n === "EC"), gfsM = (e.models || []).find((m) => m.n === "GFS");
+        const diff = ecM && gfsM ? Math.abs(ecM.s - gfsM.s) : null;
+        const row = (m, dim) => m ? `<div class="x-kv__row${dim ? " dim" : ""}"><span>${m.n === "EC" ? "EC · 欧洲中心" : "GFS · 美国"}</span><b>${m.s} 分 · ${LV[lvIdx(m.s)][1]}</b></div>` : "";
+        const ecDim = !!(e.used && e.used.startsWith("GFS"));
+        const gfsDim = !!(e.used && e.used.startsWith("EC"));
+        const cc = cloudChange(e);
+        box.innerHTML =
+          `<button class="x-back" type="button" id="detailBack">‹ 首页</button>` +
+          `<h1 class="x-title">${fmtDate(e.t)} ${wk(e.t)} · ${typeName(e.type)}<small>${current ? current.name : ""} · ${current ? current.lat.toFixed(2) : ""}, ${current ? current.lon.toFixed(2) : ""} · ${MODEL_LABEL[modelSel]} 模型</small></h1>` +
+          `<section class="x-sec"><div class="x-scoreblock"><div class="x-hero2__score">${e.score}</div><div><p class="x-next__lv" style="--lc:var(--x-l${lk})">${LV[lk][1]}</p><p class="x-prob">${dayName(e)}${typeName(e.type)} · ${fmtDate(e.t)} ${e.t.slice(11, 16)}</p></div><p class="x-next__reason" style="grid-column:1 / -1">${e.reason}</p></div>${sunsetTimeline(e)}</section>` +
+          `<section class="x-sec"><h2 class="x-h">云层与空气</h2>${bar("本地低云", v.low)}${bar("本地中云", v.mid)}${bar("本地高云", v.high)}${bar((e.type === "sunset" ? "西侧低+中云" : "东侧低+中云"), v.far)}${bar("降水概率", v.rain)}${bar("气溶胶 AOD", v.aod, 1, v.aod != null ? v.aod.toFixed(2) : "")}</section>` +
+          `<section class="x-sec"><h2 class="x-h">风与湿度</h2><div class="x-kv"><div class="x-kv__row"><span>风向风速</span><b>${fmtWind(v.windSpd, v.windDir)}</b></div><div class="x-kv__row"><span>湿度</span><b>${v.hum != null ? Math.round(v.hum) + "%" : "—"}</b></div>${cc ? `<div class="x-kv__row"><span>云层变化</span><b>${cc}</b></div>` : ""}</div></section>` +
+          `<section class="x-sec"><h2 class="x-h">模型</h2><div class="x-kv link" id="detailModels">${row(ecM, ecDim)}${row(gfsM, gfsDim)}</div><p class="fineprint" style="color:var(--x-dim);font-size:12px;margin:8px 0 0">当前：${e.used || MODEL_LABEL[modelSel]}。${diff != null ? `两模型分差 ${diff} 分，点上面一行可切换对比。` : ""}</p></section>`;
+        $("detailBack").onclick = () => showView("home");
+        const dm = $("detailModels"); if (dm) dm.onclick = () => openCompare(detailK);
+      }
+      function openCompare(k) { compareK = k; renderCompare(); showView("compare"); }
+      function compareChart(type) {
+        const ec = [], gfs = [], labels = [];
+        for (let j = 0; j < 7; j++) {
+          const e = events.find((x) => x.day === j && x.type === type);
+          labels.push(e && e.t ? e.t.slice(5, 10).replace("-", "/") : "");
+          ec.push(e && e.per && e.per.EC ? e.per.EC.s : null);
+          gfs.push(e && e.per && e.per.GFS ? e.per.GFS.s : null);
+        }
+        const W = 320, H = 96, top = 8, bot = 78;
+        const X = (i) => 16 + i * 48;
+        const Y = (v) => bot - (Math.max(0, Math.min(100, v)) / 100) * (bot - top);
+        const pts = (vals) => vals.map((v, i) => (v == null ? null : [X(i), Y(v)])).filter(Boolean);
+        const path = (pp) => pp.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" ");
+        const dots = (pp, fill) => pp.map((q) => `<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="3" fill="${fill}"/>`).join("");
+        const ecPts = pts(ec), gfsPts = pts(gfs);
+        if (!ecPts.length && !gfsPts.length) return "";
+        const labs = labels.map((t, i) => `<text x="${X(i)}" y="90" font-size="10" fill="rgba(255,255,255,.65)" text-anchor="middle">${t}</text>`).join("");
+        return `<svg class="x-tl" style="height:96px" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${ecPts.length > 1 ? `<path d="${path(ecPts)}" fill="none" stroke="#fa7e1e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots(ecPts, "#fa7e1e")}` : ""}${gfsPts.length > 1 ? `<path d="${path(gfsPts)}" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="5 3" stroke-linejoin="round" stroke-linecap="round"/>${dots(gfsPts, "#fff")}` : ""}${labs}</svg><p class="x-legend"><span><i style="background:#fa7e1e"></i>EC</span><span><i style="background:#fff"></i>GFS</span><span>${typeName(type)}指数 · 7 天</span></p>`;
+      }
+      function renderCompare() {
+        const box = $("compareBox"); if (!box) return;
+        const e = events[compareK];
+        if (!e || e.score == null) { box.innerHTML = `<p class="x-place">暂无该天的预报。</p>`; return; }
+        const ec = e.per && e.per.EC, gfs = e.per && e.per.GFS;
+        const col = (p, nm, isEC) => p ? `<div class="x-cmp2__col${isEC ? " ec" : ""}"><span class="nm">${nm}</span><span class="x-hero2__score">${p.s}</span><span class="lv">${LV[lvIdx(p.s)][1]}</span></div>` : `<div class="x-cmp2__col"><span class="nm">${nm}</span><span class="x-hero2__score">—</span><span class="lv">无数据</span></div>`;
+        const diff = ec && gfs ? Math.abs(ec.s - gfs.s) : null;
+        const crow = (lb, a, b, fmt) => `<div class="x-cmptable__row"><span class="lb">${lb}</span><span class="v ec">${fmt ? fmt(a) : (a != null ? a : "—")}</span><span class="v">${fmt ? fmt(b) : (b != null ? b : "—")}</span></div>`;
+        const pct = (v) => (v != null ? Math.round(v) + "%" : "—");
+        const diffs = [];
+        for (let j = 0; j < 7; j++) {
+          const x = events.find((y) => y.day === j && y.type === "sunset" && y.per && y.per.EC && y.per.GFS);
+          if (x) diffs.push(Math.abs(x.per.EC.s - x.per.GFS.s));
+        }
+        const avgD = diffs.length ? Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length) : null;
+        box.innerHTML =
+          `<button class="x-back" type="button" id="compareBack">‹ 趋势</button>` +
+          `<h1 class="x-title">EC / GFS 对比<small>${fmtDate(e.t)} ${wk(e.t)} · ${typeName(e.type)} ${e.t.slice(11, 16)} · ${current ? current.name : ""}</small></h1>` +
+          `<section class="x-sec"><div class="x-cmp2">${col(ec, "EC · 欧洲中心", true)}<i></i>${col(gfs, "GFS · 美国", false)}</div><p class="x-prob" style="text-align:center">${diff != null ? `分差 ${diff} 分 · ${diff <= 10 ? "两模型较一致" : diff <= 20 ? "以 EC 为准更稳" : "分歧较大，临近再看"}` : "仅一个模型有数据"}</p></section>` +
+          `<section class="x-sec"><h2 class="x-h">7 天${typeName(e.type)}指数</h2>${compareChart(e.type)}</section>` +
+          `<section class="x-sec"><h2 class="x-h">同一时刻 · 逐项对比</h2><div class="x-cmptable"><div class="x-cmptable__row head"><span class="lb"></span><span class="v ec">EC</span><span class="v">GFS</span></div>${crow("总云", ec && ec.tot, gfs && gfs.tot, pct)}${crow("高云", ec && ec.high, gfs && gfs.high, pct)}${crow("中云", ec && ec.mid, gfs && gfs.mid, pct)}${crow("低云", ec && ec.low, gfs && gfs.low, pct)}${crow("风向风速", ec ? [ec.windSpd, ec.windDir] : null, gfs ? [gfs.windSpd, gfs.windDir] : null, (v) => (v ? fmtWindShort(v[0], v[1]) : "—"))}${crow("湿度", ec && ec.hum, gfs && gfs.hum, pct)}</div>${avgD != null ? `<p class="x-verdict">平均分差约 <b>${avgD} 分</b> · ${avgD <= 10 ? "两模型较一致，预测较稳定" : avgD <= 20 ? "两模型有分歧，以 EC 为准更稳" : "两模型分歧较大，临近再看"}。</p>` : ""}</section>`;
+        $("compareBack").onclick = () => showView("trends");
       }
 
       function updateModelNote(cached) {
@@ -696,23 +831,15 @@
         const box = $("profBox"); if (!box) return;
         const fv = favs();
         const t = dataAt ? new Date(dataAt).toLocaleString("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
-        const nt = (k) => { try { return localStorage.getItem(k) === "1"; } catch (e) { return false; } };
+        const favCount = fv.length ? fv.length : CITIES.length;
+        const modelName = MODEL_LABEL[modelSel] || "EC";
+        const sunsets = events.filter((x) => x.type === "sunset" && x.score != null && x.t);
+        const bestEv = sunsets.length ? sunsets.slice().sort((a, b) => b.score - a.score)[0] : null;
+        const bestHtml = bestEv ? `<section class="x-sec" style="border-top:1px solid var(--x-line);border-bottom:1px solid var(--x-line);padding:16px 0"><p style="font-size:13px;color:var(--x-dim);margin:0">本周最佳</p><p style="font-size:13px;color:var(--x-text);margin:10px 0 0">${fmtDate(bestEv.t)} ${wk(bestEv.t)}</p><div class="x-hero2__score" style="margin:4px 0">${bestEv.score}</div><p class="x-next__lv" style="--lc:var(--x-l${lvIdx(bestEv.score)});margin:0">${LV[lvIdx(bestEv.score)][1]}</p><p style="font-size:13px;color:var(--x-dim);margin:6px 0 0">日落 ${bestEv.t.slice(11, 16)} · ${current ? current.name : ""}</p></section>` : "";
         box.innerHTML =
-          `<div class="x-prof"><h3>设置</h3><div class="x-prof__row"><span>主题</span><small>深色</small></div><div class="x-prof__row"><span>数据更新</span><small id="profDataTime">${t}</small></div><div class="x-prof__row"><span>关于霞光</span><small>1.5 · 数据 Open-Meteo（ECMWF / GFS）</small></div></div>`;
-        box.querySelectorAll("[data-fav]").forEach((b) => b.addEventListener("click", () => {
-          let f = favs(); const n = b.dataset.fav;
-          f = f.includes(n) ? f.filter((x) => x !== n) : f.concat([n]);
-          try { localStorage.setItem("xg:fav", JSON.stringify(f)); } catch (e) {}
-          renderProfile();
-        }));
-        box.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => {
-          const c = CITIES[+b.dataset.go]; if (c) { load({ name: c[0], lat: c[1], lon: c[2] }); showView("home"); }
-        }));
-        box.querySelectorAll("[data-nt]").forEach((b) => b.addEventListener("click", () => {
-          const on = b.getAttribute("aria-pressed") !== "true";
-          b.setAttribute("aria-pressed", String(on));
-          try { localStorage.setItem(b.dataset.nt, on ? "1" : "0"); } catch (e) {}
-        }));
+          `<p class="x-place" style="margin-bottom:16px">已关注 ${favCount} 个城市 · ${modelName} 模型</p>` +
+          bestHtml +
+          `<div class="x-prof"><h3>设置</h3><div class="x-prof__row"><span>数据更新</span><small id="profDataTime">${t}</small></div><div class="x-prof__row"><span>主题</span><small>深色</small></div><div class="x-prof__row"><span>关于霞光</span><small>1.5 · 数据 Open-Meteo（ECMWF / GFS）</small></div></div>`;
       }
       renderProfile();
       updateModelNote(false);
