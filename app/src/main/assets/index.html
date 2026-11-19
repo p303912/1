@@ -36,7 +36,7 @@
       .x-d1 { animation-delay: 0.08s; } .x-d2 { animation-delay: 0.16s; } .x-d3 { animation-delay: 0.24s; }
 
       /* hero */
-      .x-hero { position: relative; height: 42vh; min-height: 260px; max-height: 460px; overflow: hidden; margin-bottom: -40px; }
+      .x-hero { position: relative; height: 32vh; min-height: 220px; max-height: 380px; overflow: hidden; margin-bottom: -40px; }
       .x-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: x-zoom 1.4s ease-out both; }
       @keyframes x-zoom { from { transform: scale(1.06); opacity: 0; } to { transform: none; opacity: 1; } }
       .x-hero::after { content: ""; position: absolute; inset: 0; background: var(--x-hero-fade); }
@@ -156,6 +156,13 @@
       .x-models { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 10px; }
       .x-detail .fineprint { color: var(--x-dim); }
 
+      /* v1.5 模型切换器 */
+      .x-modelseg { display: flex; gap: 6px; flex-wrap: wrap; }
+      .x-modelseg .x-chip[aria-pressed="true"] { background: var(--x-chip-on); color: var(--x-chip-on-text); border-color: var(--x-chip-on); }
+      .x-modelnote { font: var(--type-small); color: var(--x-dim); margin: 0; }
+      .x-modelchip { font: var(--type-tag); padding: 3px 10px; border-radius: var(--r-pill); background: var(--x-soft); color: var(--x-text); white-space: nowrap; }
+      .x-modelchip.on { background: var(--x-chip-on); color: var(--x-chip-on-text); }
+      .x-modelchip.dim { opacity: .55; }
       .x-skel { background: var(--x-faint); border-radius: 20px; min-height: 60px; animation: x-pulse 1.2s ease-in-out infinite; }
       .x-skel--big { min-height: 190px; }
       @keyframes x-pulse { 50% { opacity: 0.45; } }
@@ -171,7 +178,7 @@
         <div class="x-hero__copy x-fade">
           <p class="x-hero__place" id="heroPlace">📍 定位中…</p>
           <h1>霞光</h1>
-          <p class="x-hero__sub">火烧云预报 · 五模型集合</p>
+          <p class="x-hero__sub">火烧云预报 · EC / GFS 可切换</p>
         </div>
       </header>
       <main class="x-wrap">
@@ -182,6 +189,16 @@
           </div>
           <div class="x-cities" id="cities"></div>
           <p class="x-place" id="placeLabel"></p>
+        </section>
+
+        <section class="x-sec x-fade x-d2" id="model" aria-label="选择预报模型">
+          <h2 class="x-h">预报模型 <small>只留 EC / GFS</small></h2>
+          <div class="x-modelseg" id="modelSeg" role="group" aria-label="选择预报模型">
+            <button class="x-chip" type="button" data-model="ec" aria-pressed="true">EC · 欧洲中心</button>
+            <button class="x-chip" type="button" data-model="gfs" aria-pressed="false">GFS · 美国</button>
+            <button class="x-chip" type="button" data-model="both" aria-pressed="false">EC+GFS 集合</button>
+          </div>
+          <p class="x-modelnote" id="modelNote">当前：EC。切换只重算同一份数据，不重新联网，分数不会来回跳。</p>
         </section>
 
         <section class="x-sec x-fade x-d2" id="next">
@@ -212,13 +229,18 @@
         </section>
       </main>
       <footer class="x-foot">
-        <p>数据 Open-Meteo（ECMWF/GFS/ICON/CMA/JMA 集合计算）。</p>
-        <a class="badge" href="https://hark.com/" target="_blank" rel="noopener"><span class="hark-mark"></span><span>built by hark</span></a>
+        <p>数据 Open-Meteo（ECMWF / GFS）。当前模型可切换，切换只重算同一份数据，不重新联网。</p>
+        <p>霞光 1.5 · 预报模型 EC / GFS 可切换</p>
       </footer>
     </div>
     <script src="hark.js"></script>
     <script>
-      const MODELS = [["ecmwf_ifs025", "EC"], ["gfs_seamless", "GFS"], ["icon_seamless", "ICON"], ["cma_grapes_global", "CMA"], ["jma_seamless", "JMA"]];
+      const MODELS = [["ecmwf_ifs025", "EC"], ["gfs_seamless", "GFS"]];
+      // v1.5：只留 EC / GFS。单模型 = 该模型原分，不做跨模型平均；集合 = EC 与 GFS 均值。
+      const MODEL_LABEL = { ec: "EC", gfs: "GFS", both: "EC+GFS 集合" };
+      let modelSel = "ec";
+      try { const m = localStorage.getItem("xg:model"); if (m === "ec" || m === "gfs" || m === "both") modelSel = m; } catch (e) {}
+      let lastF = null, lastA = null, dataAt = 0;
       const CITIES = [["上海", 31.23, 121.47], ["北京", 39.9, 116.4], ["广州", 23.13, 113.26], ["深圳", 22.54, 114.06], ["杭州", 30.27, 120.15], ["成都", 30.57, 104.07], ["香港", 22.32, 114.17], ["新加坡", 1.29, 103.85]];
       const LV = [[15, "不烧"], [35, "微烧"], [55, "小烧"], [75, "中烧"], [90, "大烧"], [101, "超级大烧"]];
       const WK = "日一二三四五六";
@@ -316,21 +338,33 @@
         const key = `xsh:${place.lat.toFixed(2)},${place.lon.toFixed(2)}`;
         const store = (() => { try { return window.localStorage; } catch (e) { return null; } })();
         try {
+          // v1.5：同地点 1 小时内直接用缓存，不重新联网 —— 同一份数据分数不变。
+          let cached = null;
+          try { cached = store && JSON.parse(store.getItem(key) || "null"); } catch (e) {}
+          if (cached && cached.f && Date.now() - cached.at < 3600e3) {
+            if (my !== token) return;
+            lastF = cached.f; lastA = cached.a; dataAt = cached.at;
+            utcOff = (cached.f[0] && cached.f[0].utc_offset_seconds) || 0;
+            compute(cached.f, cached.a); render(false); updateModelNote(true);
+            return;
+          }
           const [f, a] = await Promise.all([
-            getJson(fu, 3).catch(() => getJson(fu.replace(/models=.*$/, "models=ecmwf_ifs025,gfs_seamless,icon_seamless"), 2)),
+            getJson(fu, 3),
             fetch(au).then((r) => (r.ok ? r.json() : null)).catch(() => null),
           ]);
           if (my !== token) return;
+          lastF = f; lastA = a; dataAt = Date.now();
           utcOff = (f[0] && f[0].utc_offset_seconds) || 0;
-          compute(f, a); render();
+          compute(f, a); render(false); updateModelNote(false);
           try { store && store.setItem(key, JSON.stringify({ at: Date.now(), f, a })); } catch (e) {}
         } catch (e) {
           if (my !== token) return;
           let saved = null;
           try { saved = store && JSON.parse(store.getItem(key) || "null"); } catch (err) {}
           if (saved && Date.now() - saved.at < 6 * 3600e3) {
+            lastF = saved.f; lastA = saved.a; dataAt = saved.at;
             utcOff = (saved.f[0] && saved.f[0].utc_offset_seconds) || 0;
-            compute(saved.f, saved.a); render();
+            compute(saved.f, saved.a); render(false); updateModelNote(true);
             return;
           }
           $("nextBox").innerHTML = `<aside class="callout" aria-label="加载失败"><p class="callout__head">加载失败</p><p class="callout__lead"><strong>没能拿到预报数据。</strong> 数据源可能请求过于频繁或网络不通，稍等片刻再试。</p><button class="btn" type="button" id="retry">重试</button></aside>`;
@@ -354,7 +388,7 @@
           const dt = new Date(t + ":00Z"); dt.setUTCMinutes(dt.getUTCMinutes() + 30, 0, 0); dt.setUTCMinutes(0);
           const i = idx[dt.toISOString().slice(0, 16)];
           const far = (type === "sunset" ? W : E).hourly, ao = aod[H.time[i]];
-          const models = [], vals = { low: [], mid: [], high: [], far: [], rain: [] };
+          const per = {};
           if (i !== undefined) for (const [m, n] of MODELS) {
             const g = (h, v) => (h[v + "_" + m] || [])[i];
             const low = g(H, "cloud_cover_low"), mid = g(H, "cloud_cover_mid"), high = g(H, "cloud_cover_high");
@@ -364,21 +398,29 @@
             s += mx >= 25 && mx <= 75 ? 30 : (mx >= 10 && mx < 25) || (mx > 75 && mx <= 90) ? 10 : -15;
             s -= low > 60 ? 35 : low >= 30 ? 15 : 0;
             const fa = fl != null && fm != null ? (fl + fm) / 2 : null;
-            if (fa != null) { s -= fa > 60 ? 30 : fa >= 40 ? 12 : 0; vals.far.push(fa); }
+            if (fa != null) s -= fa > 60 ? 30 : fa >= 40 ? 12 : 0;
             if (ao != null) s += ao < 0.2 ? 10 : ao > 0.5 ? -20 : 0;
             if (rain > 60) s -= 20;
-            models.push({ n, s: Math.max(0, Math.min(100, s)) });
-            vals.low.push(low); vals.mid.push(mid); vals.high.push(high); vals.rain.push(rain);
+            per[n] = { s: Math.max(0, Math.min(100, s)), low, mid, high, far: fa, rain };
           }
+          const models = Object.entries(per).map(([n, p]) => ({ n, s: p.s }));
           if (!models.length) { events.push({ type, day: j, t, past: t < nowLocal }); continue; }
-          const hrs = (Date.parse(t + ":00Z") - Date.parse(nowLocal + ":00Z")) / 3.6e6;
-          const near = hrs >= -1 && hrs <= 12;
-          const sc = models.flatMap((x) => (near && (x.n === "EC" || x.n === "ICON") ? [x.s, x.s] : [x.s]));
-          const v = { low: avg(vals.low), mid: avg(vals.mid), high: avg(vals.high), far: avg(vals.far), rain: avg(vals.rain), aod: ao };
-          events.push({ type, day: j, t, past: t < nowLocal, score: median(sc), models, v, reason: reason(v, type) });
+          const pick = selectVals(per, ao);
+          events.push({ type, day: j, t, past: t < nowLocal, score: pick.score, models, v: pick.v, used: pick.used, reason: reason(pick.v, type) });
         }
       }
 
+      // v1.5 选模型规则：单模型直接用该模型原分；集合用两者均值；所选模型无数据时才用另一个，并标注。
+      function selectVals(per, ao) {
+        const avg = (k) => { const vs = [per.EC, per.GFS].filter(Boolean).map((p) => p[k]).filter((v) => v != null); return vs.length ? vs.reduce((x, y) => x + y, 0) / vs.length : null; };
+        const single = (n, other) => per[n]
+          ? { score: per[n].s, v: { low: per[n].low, mid: per[n].mid, high: per[n].high, far: per[n].far, rain: per[n].rain, aod: ao }, used: n }
+          : { score: per[other].s, v: { low: per[other].low, mid: per[other].mid, high: per[other].high, far: per[other].far, rain: per[other].rain, aod: ao }, used: other + "（" + n + "无数据）" };
+        if (modelSel === "ec") return single("EC", "GFS");
+        if (modelSel === "gfs") return single("GFS", "EC");
+        if (per.EC && per.GFS) return { score: Math.round((per.EC.s + per.GFS.s) / 2), v: { low: avg("low"), mid: avg("mid"), high: avg("high"), far: avg("far"), rain: avg("rain"), aod: ao }, used: "EC+GFS" };
+        return single(per.EC ? "EC" : "GFS", per.EC ? "GFS" : "EC");
+      }
       function reason(v, type) {
         const p = [], mx = Math.max(v.mid, v.high), side = type === "sunset" ? "西" : "东";
         p.push(mx >= 25 && mx <= 75 ? `中高云适中（${Math.round(mx)}%）` : mx < 25 ? "中高云偏少，缺少“画布”" : "中高云过厚");
@@ -392,14 +434,14 @@
       const typeName = (t) => (t === "sunrise" ? "日出" : "日落");
       const dayName = (e) => (e.day === 0 ? "今天" : e.day === 1 ? "明天" : wk(e.t));
 
-      function render() {
+      function render(noAnim) {
         const nx = events.find((e) => e.t && !e.past && e.score != null);
         const R = 52, C = 2 * Math.PI * R;
         if (nx) {
           const lc = `var(--x-l${lvIdx(nx.score)})`;
-          $("nextBox").innerHTML = `<div class="x-next x-card x-fade" style="--lc:${lc}">
+          $("nextBox").innerHTML = `<div class="x-next x-card${noAnim ? "" : " x-fade"}" style="--lc:${lc}">
              <div class="x-gauge" role="img" aria-label="评分 ${nx.score} 分，${LV[lvIdx(nx.score)][1]}">
-               <svg viewBox="0 0 128 128"><circle class="x-track" cx="64" cy="64" r="${R}"/><circle class="x-arc" id="arc" cx="64" cy="64" r="${R}" stroke="${lc}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
+               <svg viewBox="0 0 128 128"><circle class="x-track" cx="64" cy="64" r="${R}"/><circle class="x-arc" id="arc" cx="64" cy="64" r="${R}" stroke="${lc}" stroke-dasharray="${C}" stroke-dashoffset="${noAnim ? C * (1 - nx.score / 100) : C}"${noAnim ? ' style="transition:none"' : ""}/></svg>
                <div class="x-gauge__num"><b>${nx.score}</b><span>/ 100</span></div>
              </div>
              <div>
@@ -408,7 +450,7 @@
                <p class="x-next__count" id="countdown"></p>
              </div>
              <p class="x-next__reason">${nx.reason}</p></div>`;
-          requestAnimationFrame(() => requestAnimationFrame(() => { const a = $("arc"); if (a) a.style.strokeDashoffset = C * (1 - nx.score / 100); }));
+          if (!noAnim) requestAnimationFrame(() => requestAnimationFrame(() => { const a = $("arc"); if (a) a.style.strokeDashoffset = C * (1 - nx.score / 100); }));
           nextAt = Date.parse(nx.t + ":00Z") - utcOff * 1000;
           tick();
         } else {
@@ -419,7 +461,7 @@
         for (let j = 0; j < 7; j++) {
           const pair = events.filter((e) => e.day === j), ref = pair.find((e) => e.t);
           if (!ref) continue;
-          html += `<div class="x-day x-card x-fade" style="animation-delay:${j * 0.05}s"><div class="x-day__date">${fmtDate(ref.t)}<small>${dayName(ref)}</small></div>` +
+          html += `<div class="x-day x-card${noAnim ? "" : " x-fade"}"${noAnim ? "" : ` style="animation-delay:${j * 0.05}s"`}><div class="x-day__date">${fmtDate(ref.t)}<small>${dayName(ref)}</small></div>` +
             pair.map((e) => {
               const k = events.indexOf(e);
               if (e.score == null) return `<button class="x-tile" type="button" disabled><span class="x-tile__top"><span>${typeName(e.type)}</span><span>${e.t ? e.t.slice(11, 16) : "—"}</span></span>无数据</button>`;
@@ -442,10 +484,26 @@
         const side = e.type === "sunset" ? "西侧 150km" : "东侧 150km";
         $("detail").innerHTML = `<div class="x-detail x-card"><h3>${fmtDate(e.t)} ${typeName(e.type)} ${e.t.slice(11, 16)} · ${LV[lvIdx(e.score)][1]} ${e.score}</h3>
           <p class="x-next__reason">${e.reason}</p>
+          <div class="x-models">${(e.models || []).map((m) => `<span class="x-modelchip${e.used && e.used.startsWith(m.n) ? " on" : " dim"}">${m.n} ${m.s} 分</span>`).join("")}<span class="x-modelchip">当前：${e.used || MODEL_LABEL[modelSel]}</span></div>
           ${bar("本地低云", v.low)}${bar("本地中云", v.mid)}${bar("本地高云", v.high)}${bar(side + "低+中云", v.far)}${bar("降水概率", v.rain)}${bar("气溶胶 AOD", v.aod, 1, v.aod != null ? v.aod.toFixed(2) : "")}
           <p class="fineprint">时间为当地 ${tz}。</p></div>`;
         if (scroll) $("detail").scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
+
+      function updateModelNote(cached) {
+        const el = $("modelNote"); if (!el) return;
+        const t = dataAt ? new Date(dataAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) : "—";
+        el.textContent = `当前：${MODEL_LABEL[modelSel]}。数据 ${t} 更新${cached ? "（缓存）" : ""} · 切换只重算同一份数据，不重新联网，分数不会来回跳。`;
+        document.querySelectorAll("#modelSeg [data-model]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.model === modelSel));
+      }
+      $("modelSeg").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-model]"); if (!b || b.dataset.model === modelSel) return;
+        modelSel = b.dataset.model;
+        try { localStorage.setItem("xg:model", modelSel); } catch (err) {}
+        updateModelNote(true);
+        if (lastF) { compute(lastF, lastA); render(true); }
+      });
+      updateModelNote(false);
 
       function tick() {
         const el = $("countdown"); if (!el || nextAt == null) return;
@@ -542,7 +600,13 @@
         let last = null;
         try { last = JSON.parse(localStorage.getItem("xg:last")); } catch (e) {}
         if (!last || typeof last.lat !== "number") last = { name: "上海", lat: 31.23, lon: 121.47 };
-        locate(last);
+        load(last);
+        // 后台悄悄定位：位置变了（离上次超过约 5 公里）才切换，首屏不再等 GPS
+        try {
+          navigator.geolocation.getCurrentPosition((p) => {
+            if (Math.hypot(p.coords.latitude - last.lat, p.coords.longitude - last.lon) > 0.05) locate(last);
+          }, () => {}, { timeout: 8000, maximumAge: 600000 });
+        } catch (e) {}
       })();
     </script>
   </body>
