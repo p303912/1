@@ -4,58 +4,61 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>火烧云预测 新版</title>
-    <meta name="theme-color" content="#0f0c29" />
+    <meta name="theme-color" content="#000000" />
     <link rel="stylesheet" href="hark.css" />
     <style>
       :root, :root[data-theme] {
         color-scheme: dark;
         --sans: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", "Noto Sans CJK SC", Roboto, "Segoe UI", sans-serif;
         --mono: ui-monospace, "Roboto Mono", monospace;
-        --x-glass: rgba(255, 255, 255, 0.08);
-        --x-line: rgba(255, 255, 255, 0.14);
-        --x-dim: rgba(255, 255, 255, 0.66);
+        --x-glass: transparent;
+        --x-line: #262626;
+        --x-dim: #a8a8a8;
         --x-l0: #9a98b0; --x-l1: #ffc078; --x-l2: #ff9a3c; --x-l3: #ff5e3a; --x-l4: #e8304f; --x-l5: #e040c8;
-        --x-bg: #0f0c29; --x-bg-grad: linear-gradient(170deg, #0f0c29 0%, #302b63 55%, #24243e 100%);
-        --x-text: #fff; --x-text-2: rgba(255, 255, 255, 0.88); --x-soft: rgba(255, 255, 255, 0.12); --x-faint: rgba(255, 255, 255, 0.07);
-        --x-track: rgba(255, 255, 255, 0.1); --x-shadow: none; --x-focus: rgba(255, 255, 255, 0.4);
-        --x-chip-bg: #29245a; --x-chip-on: #fff; --x-chip-on-text: #1d1a45; --x-place-bg: #1d1a45;
-        --x-hero-fade: linear-gradient(180deg, rgba(15,12,41,.35) 0%, rgba(15,12,41,0) 30%, rgba(15,12,41,.55) 68%, #0f0c29 100%);
-        --x-hero-text: #fff; --x-hero-sub: rgba(255, 255, 255, 0.85); --x-hero-shadow: 0 2px 18px rgba(0, 0, 0, .35);
+        --x-bg: #000000; --x-bg-grad: none;
+        --x-text: #fafafa; --x-text-2: #d4d4d4; --x-soft: #1c1c1e; --x-faint: #111111;
+        --x-track: rgba(255, 255, 255, 0.12); --x-shadow: none; --x-focus: rgba(255, 255, 255, 0.4);
+        --x-chip-bg: transparent; --x-chip-on: #fafafa; --x-chip-on-text: #000000; --x-place-bg: rgba(0, 0, 0, 0.45);
+        --x-hero-fade: linear-gradient(180deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,.45) 65%, #000000 100%);
+        --x-hero-text: #fafafa; --x-hero-sub: #d4d4d4; --x-hero-shadow: 0 2px 18px rgba(0, 0, 0, .35);
         --x-tile-on: rgba(255, 255, 255, 0.7); --x-lv0-text: #dcdbe8; --x-tag-filter: brightness(1.25);
       }
       html, body { background: var(--x-bg); color: var(--x-text); overflow-x: hidden; }
       body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--x-bg-grad); }
-      .page.x-app { max-width: none; padding: 0 0 32px; gap: 0; }
+      .page.x-app { max-width: none; padding: 0 0 88px; gap: 0; }
       .x-wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; display: grid; gap: 28px; min-width: 0; }
       .x-card {
-        background: var(--x-glass); border: 1px solid var(--x-line); border-radius: 20px; box-shadow: var(--x-shadow);
-        -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
+        background: transparent; border: 0; border-bottom: 1px solid var(--x-line); border-radius: 0; box-shadow: none;
+        -webkit-backdrop-filter: none; backdrop-filter: none;
       }
+      .x-results.x-card { background: #121212; border: 1px solid #262626; border-radius: 12px; }
       @keyframes x-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
       .x-fade { animation: x-in 0.6s var(--ease-out, ease-out) both; }
       .x-d1 { animation-delay: 0.08s; } .x-d2 { animation-delay: 0.16s; } .x-d3 { animation-delay: 0.24s; }
 
       /* hero */
-      .x-hero { position: relative; height: 32vh; min-height: 220px; max-height: 380px; overflow: hidden; margin-bottom: -40px; }
+      .x-hero { position: relative; height: 26vh; min-height: 180px; max-height: 300px; overflow: hidden; margin-bottom: -32px; }
       .x-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: x-zoom 1.4s ease-out both; }
       @keyframes x-zoom { from { transform: scale(1.06); opacity: 0; } to { transform: none; opacity: 1; } }
       .x-hero::after { content: ""; position: absolute; inset: 0; background: var(--x-hero-fade); }
-      .x-hero__copy { position: absolute; z-index: 1; left: 0; right: 0; bottom: 52px; max-width: 640px; margin: 0 auto; padding: 0 16px; }
-      .x-hero__place { display: inline-flex; align-items: center; gap: 6px; font: var(--type-label); color: var(--x-text); margin-bottom: 8px; padding: 4px 12px; border-radius: var(--r-pill); background: var(--x-place-bg); border: 1px solid var(--x-line); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-      .x-hero h1 { font-size: 44px; line-height: 1.05; font-weight: 600; letter-spacing: 0.04em; color: var(--x-hero-text); text-shadow: var(--x-hero-shadow); }
+      .x-hero__copy { position: absolute; z-index: 1; left: 0; right: 0; bottom: 44px; max-width: 640px; margin: 0 auto; padding: 0 16px; }
+      .x-hero__place { display: inline-flex; align-items: center; gap: 6px; font: var(--type-label); color: var(--x-text); margin-bottom: 8px; padding: 6px 12px; border-radius: var(--r-pill); background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .25); -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%); }
+      .x-hero h1 { font-size: 30px; line-height: 1.05; font-weight: 300; letter-spacing: 0.1em; color: var(--x-hero-text); text-shadow: var(--x-hero-shadow); }
+      .x-hero h1 .x-ver { font-size: 12px; line-height: 1; vertical-align: middle; letter-spacing: 0; padding: 3px 8px; border-radius: var(--r-pill); background: var(--x-place-bg); border: 1px solid var(--x-line); text-shadow: none; }
       .x-hero__sub { font: var(--type-body); color: var(--x-hero-sub); margin-top: 6px; }
 
       /* sections */
       .x-sec { position: relative; display: grid; gap: 12px; min-width: 0; }
-      .x-h { font: var(--type-heading); color: var(--x-text); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+      .x-sec + .x-sec { border-top: 1px solid var(--x-line); padding-top: 22px; }
+      .x-h { font: var(--type-heading); color: var(--x-text); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; letter-spacing: .03em; }
       .x-h small { font: var(--type-small); color: var(--x-dim); }
 
       /* search + chips */
       .x-search { position: relative; }
-      .x-search::before { content: "🔍"; position: absolute; left: 16px; top: 0; height: var(--tap); display: flex; align-items: center; font-size: 15px; pointer-events: none; opacity: .85; }
+      .x-search::before { content: ""; position: absolute; left: 16px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8a8a8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") center/contain no-repeat; pointer-events: none; }
       .x-search input {
         width: 100%; box-sizing: border-box; height: var(--tap); padding: 0 18px 0 44px;
-        border: 1px solid var(--x-line); border-radius: var(--r-pill); background: var(--x-glass); color: var(--x-text); font: var(--type-body); box-shadow: var(--x-shadow);
+        border: 0; border-radius: var(--r-pill); background: #1c1c1e; color: var(--x-text); font: var(--type-body); box-shadow: none;
         -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); outline: none; -webkit-appearance: none; appearance: none;
       }
       .x-search input::placeholder { color: var(--x-dim); }
@@ -68,7 +71,7 @@
       }
       .x-results li:last-child button { border-bottom: 0; }
       .x-results small { color: var(--x-dim); font: var(--type-small); margin-left: 6px; }
-      .x-cities { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+      .x-cities { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 4px 16px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
       .x-cities::-webkit-scrollbar { display: none; }
       .x-chip {
         flex: 0 0 auto; height: var(--tap); min-width: var(--tap); padding: 0 16px; border-radius: var(--r-pill); cursor: pointer; scroll-snap-align: start;
@@ -79,22 +82,22 @@
       .x-place { font: var(--type-small); color: var(--x-dim); }
 
       /* next event */
-      .x-next { padding: 20px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px 20px; align-items: center; }
-      .x-gauge { position: relative; width: 128px; height: 128px; }
+      .x-next { padding: 20px 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px 20px; align-items: center; }
+      .x-gauge { position: relative; width: 140px; height: 140px; }
       .x-gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
       .x-gauge circle { fill: none; stroke-width: 10; }
       .x-gauge .x-track { stroke: var(--x-track); }
       .x-gauge .x-arc { stroke-linecap: round; transition: stroke-dashoffset 1.2s var(--ease-out, ease-out); filter: drop-shadow(0 0 6px var(--lc)); }
       .x-gauge__num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
-      .x-gauge__num b { font-size: 40px; line-height: 1; font-weight: 600; color: var(--x-text); }
+      .x-gauge__num b { font-size: 54px; line-height: 1; font-weight: 300; color: var(--x-text); }
       .x-gauge__num span { font: var(--type-caption); color: var(--x-dim); margin-top: 4px; }
-      .x-next__lv { font-size: 26px; line-height: 1.2; font-weight: 600; color: var(--lc); }
+      .x-next__lv { font-size: 28px; line-height: 1.2; font-weight: 400; color: var(--lc); }
       .x-next__when { font: var(--type-label); color: var(--x-text); margin-top: 6px; }
       .x-next__count { font: var(--type-small); color: var(--x-dim); margin-top: 2px; }
       .x-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
       .x-badge { font: var(--type-tag); padding: 3px 10px; border-radius: var(--r-pill); background: var(--x-soft); color: var(--x-text); white-space: nowrap; }
       .x-next__reason { grid-column: 1 / -1; font: var(--type-body); color: var(--x-text-2); padding-top: 14px; border-top: 1px solid var(--x-line); }
-      @media (max-width: 380px) { .x-gauge { width: 108px; height: 108px; } .x-gauge__num b { font-size: 34px; } .x-next { gap: 14px; padding: 16px; } .x-next__lv { font-size: 22px; } }
+      @media (max-width: 380px) { .x-gauge { width: 118px; height: 118px; } .x-gauge__num b { font-size: 40px; } .x-next { gap: 14px; padding: 16px 0; } .x-next__lv { font-size: 24px; } }
 
       /* level chips */
       .x-lv { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--r-pill); font: var(--type-tag); white-space: nowrap; color: #fff; }
@@ -107,14 +110,14 @@
 
       /* 7-day */
       .x-days { display: grid; gap: 8px; }
-      .x-day { display: grid; grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; padding: 8px; }
+      .x-day { display: grid; grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; padding: 12px 0; }
       .x-day__date { font: var(--type-label); color: var(--x-text); align-self: center; padding-left: 4px; }
       .x-day__date small { display: block; font: var(--type-caption); color: var(--x-dim); }
       .x-tile {
         --lc: var(--x-l0);
         display: flex; flex-direction: column; gap: 4px; align-items: flex-start; min-width: 0; min-height: var(--tap);
-        padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; cursor: pointer; text-align: left;
-        background: linear-gradient(135deg, color-mix(in srgb, var(--lc) 34%, transparent), color-mix(in srgb, var(--lc) 10%, transparent));
+        padding: 8px 10px; border-radius: 12px; border: 1px solid #262626; cursor: pointer; text-align: left;
+        background: transparent;
         color: var(--x-text); font: var(--type-caption); transition: transform .15s, border-color .2s;
       }
       .x-tile:active { transform: scale(.97); }
@@ -156,9 +159,14 @@
       .x-models { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 10px; }
       .x-detail .fineprint { color: var(--x-dim); }
 
-      /* v1.5 模型切换器 */
-      .x-modelseg { display: flex; gap: 6px; flex-wrap: wrap; }
-      .x-modelseg .x-chip[aria-pressed="true"] { background: var(--x-chip-on); color: var(--x-chip-on-text); border-color: var(--x-chip-on); }
+      /* v1.5 模型切换器：分段控件，三段同一排等宽 */
+      .x-modelseg { display: flex; gap: 0; flex-wrap: nowrap; padding: 3px; border-radius: 12px; background: var(--x-soft); border: 1px solid var(--x-line); }
+      .x-modelseg .x-chip { flex: 1 1 0; min-width: 0; height: 36px; padding: 0 4px; border: 0; border-radius: 10px; background: transparent; font-size: 13px; overflow: hidden; text-overflow: ellipsis; }
+      .x-modelseg .x-chip[aria-pressed="true"] { background: var(--x-chip-on); color: var(--x-chip-on-text); border-color: transparent; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); }
+      .x-modelseg { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+      .x-modelseg .x-chip, .x-tile, .x-story, .x-act, .x-tab { transition: transform .15s ease; }
+      .x-modelseg .x-chip:active, .x-tile:active, .x-story:active, .x-act:active, .x-tab:active { transform: scale(.94); }
+      .x-gauge::after { content: ""; position: absolute; inset: -14px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--lc) 20%, transparent), transparent 70%); z-index: -1; }
       .x-modelnote { font: var(--type-small); color: var(--x-dim); margin: 0; }
       .x-modelchip { font: var(--type-tag); padding: 3px 10px; border-radius: var(--r-pill); background: var(--x-soft); color: var(--x-text); white-space: nowrap; }
       .x-modelchip.on { background: var(--x-chip-on); color: var(--x-chip-on-text); }
@@ -169,19 +177,75 @@
       .x-foot { max-width: 640px; margin: 36px auto 0; padding: 20px 16px 0; border-top: 1px solid var(--x-line); display: grid; gap: 14px; font: var(--type-caption); color: var(--x-dim); }
       .x-foot .badge { justify-self: start; }
       @media (prefers-reduced-motion: reduce) { .x-skel, .x-fade, .x-hero img, .x-detail { animation: none; } .x-gauge .x-arc { transition: none; } }
+      /* ins 风：动态圈、帖子头、操作栏、底部导航 */
+      .x-story { display: inline-flex; align-items: center; gap: 6px; padding: 9px 15px; border-radius: 999px; background: #1c1c1e; border: 1px solid #262626; color: #d4d4d4; font-size: 13px; font-weight: 500; cursor: pointer; flex: 0 0 auto; scroll-snap-align: start; white-space: nowrap; }
+      .x-story[aria-pressed="true"] { color: #fafafa; font-weight: 600; border: 1px solid transparent; background: linear-gradient(#1c1c1e, #1c1c1e) padding-box, linear-gradient(45deg, #fa7e1e, #d62976, #962fbf) border-box; }
+      .x-tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 50; display: flex; justify-content: space-around; align-items: center; width: min(340px, calc(100% - 48px)); height: 56px; border-radius: 999px; background: rgba(28, 28, 30, .55); border: 1px solid rgba(255, 255, 255, .22); box-shadow: 0 8px 32px rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%); }
+      .x-homeind { position: fixed; left: 50%; transform: translateX(-50%); bottom: 6px; width: 120px; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, .55); z-index: 60; }
+      .x-tab { background: none; border: 0; color: #8e8e93; padding: 6px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-weight: 500; min-width: 56px; }
+      .x-tab.on { color: #fa7e1e; }
+      .x-tab span { font-size: 10px; line-height: 1; }
+      .x-tab.on { opacity: 1; }
+      .x-tab svg { display: block; }
+      .x-tab__ava { width: 28px; height: 28px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5); }
+      .x-tab__in { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; color: #fff; background: #000; }
+      /* 高级版：大标题头、照片主卡、点阵数字、双卡、目标行、刷新胶囊 */
+      .x-tophead { max-width: 640px; margin: 0 auto; padding: 20px 16px 2px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+      .x-tophead__date { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--x-dim); }
+      .x-tophead h1 { font-size: 34px; line-height: 1.15; font-weight: 700; letter-spacing: .01em; color: #fafafa; margin-top: 4px; }
+      .x-tophead__ava { width: 40px; height: 40px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5); flex: 0 0 auto; margin-top: 8px; }
+      .x-tophead__in { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; font-size: 16px; font-weight: 600; color: #fff; background: #000; }
+      .x-hero2 { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .12); }
+      .x-hero2__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .x-hero2__shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,.74) 100%), linear-gradient(135deg, rgba(214,41,118,.30), rgba(250,126,30,.12) 55%, transparent); }
+      .x-hero2__body { position: relative; z-index: 1; padding: 22px 20px 18px; display: grid; gap: 10px; }
+      .x-hero2__label { font-size: 12px; letter-spacing: .12em; color: rgba(255, 255, 255, .85); text-transform: uppercase; }
+      .x-dots { display: flex; gap: 12px; margin: 2px 0; }
+      .x-digit { display: grid; grid-template-columns: repeat(5, 6px); grid-auto-rows: 6px; gap: 3px; }
+      .x-digit i { display: block; width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .14); }
+      .x-digit i.on { background: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, .45); }
+      .x-hero2__lv { font-size: 26px; font-weight: 600; color: var(--lc, #fff); }
+      .x-hero2__lv span { font-size: 15px; font-weight: 400; color: rgba(255, 255, 255, .85); margin-left: 4px; }
+      .x-hero2__when { font-size: 13px; color: rgba(255, 255, 255, .85); }
+      .x-hero2__reason { font-size: 14px; line-height: 1.55; color: rgba(255, 255, 255, .88); }
+      .x-spark { width: 100%; height: 56px; display: block; }
+      .x-day.x-card, .x-detail.x-card { background: #121212; border: 1px solid #262626; border-radius: 20px; }
+      .x-day.x-card { padding: 10px; }
+      .x-view[hidden] { display: none; }
+      .x-tl { width: 100%; height: 84px; display: block; margin-top: 2px; }
+      .x-tl__cap { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255, 255, 255, .75); margin-top: 2px; }
+      .x-trend { border-radius: 20px; background: #121212; border: 1px solid #262626; padding: 16px; display: grid; gap: 10px; margin-bottom: 12px; }
+      .x-trend h3 { font-size: 14px; font-weight: 600; color: #fafafa; display: flex; justify-content: space-between; }
+      .x-trend h3 span { color: var(--x-dim); font-size: 12px; font-weight: 400; }
+      .x-trend p { font-size: 13px; color: var(--x-dim); line-height: 1.5; }
+      .x-trend p b { color: #fafafa; font-weight: 600; }
+      .x-diffbars { display: flex; align-items: flex-end; gap: 6px; height: 56px; }
+      .x-diffbars i { flex: 1; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, #fa7e1e, #d62976); min-height: 3px; }
+      .x-prof { border-radius: 20px; background: #121212; border: 1px solid #262626; padding: 6px 16px; margin-bottom: 12px; }
+      .x-prof h3 { font-size: 13px; color: var(--x-dim); font-weight: 600; padding: 10px 0 4px; }
+      .x-prof__row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid #262626; font-size: 14px; color: #fafafa; }
+      .x-prof__row:first-of-type { border-top: 0; }
+      .x-prof__row span { flex: 1; }
+      .x-prof__row small { color: var(--x-dim); font-size: 12px; }
+      .x-star { background: none; border: 0; color: #71717a; font-size: 17px; cursor: pointer; padding: 2px 6px; }
+      .x-star.on { color: #fa7e1e; }
+      .x-switch { width: 44px; height: 26px; border-radius: 999px; border: 0; background: #262626; position: relative; cursor: pointer; flex: 0 0 auto; }
+      .x-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fafafa; transition: transform .18s ease; }
+      .x-switch[aria-pressed="true"] { background: #fa7e1e; }
+      .x-switch[aria-pressed="true"]::after { transform: translateX(18px); }
     </style>
   </head>
   <body>
     <div class="page x-app" id="top">
-      <header class="x-hero">
-        <img src="sunset_hero.jpg" alt="城市天际线上空的火烧云" />
-        <div class="x-hero__copy x-fade">
-          <p class="x-hero__place" id="heroPlace">📍 定位中…</p>
+      <div class="x-tophead">
+        <div class="x-tophead__meta">
+          <span class="x-tophead__date" id="headDate">11月19日 周三</span>
           <h1>霞光</h1>
-          <p class="x-hero__sub">火烧云预报 · EC / GFS 可切换</p>
         </div>
-      </header>
+        <span class="x-tophead__ava"><span class="x-tophead__in">霞</span></span>
+      </div>
       <main class="x-wrap">
+      <div id="view-home" class="x-view">
         <section class="x-sec x-fade x-d1" id="place" aria-label="选一个地点">
           <div class="x-search">
             <input id="q" type="search" placeholder="搜索城市，如 厦门" aria-label="搜索城市" autocomplete="off" />
@@ -205,6 +269,18 @@
           <h2 class="x-h">下一场烧不烧</h2>
           <div id="nextBox"></div>
         </section>
+        <script>
+          function showView(name) {
+            document.querySelectorAll('.x-view').forEach(function (v) { v.hidden = v.id !== 'view-' + name; });
+            document.querySelectorAll('.x-tab').forEach(function (t) { t.classList.toggle('on', t.dataset.view === name); });
+            window.scrollTo(0, 0);
+          }
+          (function () {
+            document.querySelectorAll('.x-tab').forEach(function (t) {
+              t.addEventListener('click', function () { showView(t.dataset.view || 'home'); });
+            });
+          })();
+        </script>
 
         <section class="x-sec x-fade x-d3" id="week">
           <h2 class="x-h">7 天日出日落 <small>点格子看详情</small></h2>
@@ -215,6 +291,8 @@
           <h2 class="x-h">附近观赏点 <small>观景点、山顶、海滩、公园</small></h2>
           <div class="x-spots" id="spotBox"><p class="x-spots__msg">查找中…</p></div>
         </section>
+      </div>
+      <div id="view-map" class="x-view" hidden>
         <section class="x-sec x-fade x-d3" id="sat">
           <h2 class="x-h">卫星云图 <small>近 6 小时动画</small></h2>
           <div class="x-card x-sat">
@@ -227,12 +305,32 @@
             <p class="fineprint">中央气象台 风云四号B 真彩色云图，以所选位置为中心（红点），每 15 分钟一帧，夜间为红外合成。时间为北京时间。</p>
           </div>
         </section>
+      </div>
+      <div id="view-trends" class="x-view" hidden>
+        <section class="x-sec">
+          <h2 class="x-h">7 天趋势 <small>日出 / 日落指数与模型差异</small></h2>
+          <div id="trendBox"></div>
+        </section>
+      </div>
+      <div id="view-profile" class="x-view" hidden>
+        <section class="x-sec">
+          <h2 class="x-h">我的 <small>城市与提醒</small></h2>
+          <div id="profBox"></div>
+        </section>
+      </div>
       </main>
       <footer class="x-foot">
         <p>数据 Open-Meteo（ECMWF / GFS）。当前模型可切换，切换只重算同一份数据，不重新联网。</p>
         <p>霞光 1.5 · 预报模型 EC / GFS 可切换</p>
       </footer>
-    </div>
+          <nav class="x-tabbar">
+        <button class="x-tab on" type="button" data-view="home"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>首页</span></button>
+        <button class="x-tab" type="button" data-view="map"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 .42-8.98 6 6 0 0 0-11.7 1.62A4 4 0 0 0 7 19.5z"/><path d="M12 12v5"/></svg><span>云图</span></button>
+        <button class="x-tab" type="button" data-view="trends"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 8 11 13 15 21 6"/><path d="M15 6h6v6"/></svg><span>趋势</span></button>
+        <button class="x-tab" type="button" data-view="profile"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg><span>我的</span></button>
+      </nav>
+      <div class="x-homeind"></div>
+</div>
     <script src="hark.js"></script>
     <script>
       const MODELS = [["ecmwf_ifs025", "EC"], ["gfs_seamless", "GFS"]];
@@ -255,8 +353,8 @@
       const wk = (t) => "周" + WK[new Date(t.slice(0, 10) + "T00:00Z").getUTCDay()];
 
       function renderCities() {
-        $("cities").innerHTML = `<button class="x-chip" type="button" id="geo" aria-pressed="${!!current && !!current.geo}">📍 ${current && current.geo ? current.name : "我的位置"}</button>` +
-          CITIES.map((c, i) => `<button class="x-chip" type="button" data-i="${i}" aria-pressed="${!!current && !current.geo && current.name === c[0]}">${c[0]}</button>`).join("");
+        $("cities").innerHTML = `<button class="x-story" type="button" id="geo" aria-pressed="${!!current && !!current.geo}">📍 ${current && current.geo ? current.name : "我的位置"}</button>` +
+          CITIES.map((c, i) => `<button class="x-story" type="button" data-i="${i}" aria-pressed="${!!current && !current.geo && current.name === c[0]}">${c[0]}</button>`).join("");
       }
       $("cities").addEventListener("click", (e) => {
         const b = e.target.closest("button"); if (!b) return;
@@ -329,7 +427,8 @@
         satCenter(place);
         try { localStorage.setItem("xg:last", JSON.stringify(place)); } catch (e) {}
         $("placeLabel").textContent = `${place.name} · ${place.lat.toFixed(2)}, ${place.lon.toFixed(2)}`;
-        $("heroPlace").textContent = `📍 ${place.name}`;
+        const _dl = new Date(); const _wl = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][_dl.getDay()];
+        const _hl = $("headDate"); if (_hl) _hl.textContent = `${_dl.getMonth() + 1}月${_dl.getDate()}日 ${_wl}`;
         skeleton(); const my = ++token;
         const d = +(150 / (111.32 * Math.cos((place.lat * Math.PI) / 180))).toFixed(3);
         const lon = (x) => (((x + 540) % 360) - 180).toFixed(3);
@@ -434,29 +533,116 @@
       const typeName = (t) => (t === "sunrise" ? "日出" : "日落");
       const dayName = (e) => (e.day === 0 ? "今天" : e.day === 1 ? "明天" : wk(e.t));
 
+      // 点阵数字（参考 Morning run 的点阵大数字）
+      const DOTMAP = {
+        "0": ["01110","10001","10011","10101","11001","10001","01110"],
+        "1": ["00100","01100","00100","00100","00100","00100","01110"],
+        "2": ["01110","10001","00001","00110","01000","10000","11111"],
+        "3": ["11111","00010","00100","00010","00001","10001","01110"],
+        "4": ["00010","00110","01010","10010","11111","00010","00010"],
+        "5": ["11111","10000","11110","00001","00001","10001","01110"],
+        "6": ["00110","01000","10000","11110","10001","10001","01110"],
+        "7": ["11111","00001","00010","00100","01000","01000","01000"],
+        "8": ["01110","10001","10001","01110","10001","10001","01110"],
+        "9": ["01110","10001","10001","01111","00001","00010","01100"]
+      };
+      function dotNum(n) {
+        return String(n).split("").map((ch) => {
+          const g = DOTMAP[ch] || DOTMAP["0"];
+          const cells = g.join("").split("").map((c) => `<i class="${c === "1" ? "on" : ""}"></i>`).join("");
+          return `<span class="x-digit">${cells}</span>`;
+        }).join("");
+      }
+      function sparkline(vals, gid) {
+        const g = gid || "spg";
+        const W = 320, H = 56;
+        const pts = vals.map((v, i) => [8 + (i * (W - 16)) / Math.max(1, vals.length - 1), H - 6 - (Math.max(0, Math.min(100, v)) / 100) * (H - 14)]);
+        const line = pts.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" ");
+        const area = line + ` L${pts[pts.length - 1][0].toFixed(1)} ${H} L${pts[0][0].toFixed(1)} ${H} Z`;
+        const dots = pts.map((q) => `<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="3" fill="#fff"/>`).join("");
+        return `<svg class="x-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#${g})"/><path d="${line}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
+      }
+      // 逐小时评分（与 compute() 同一套计分规则，供日落前后时间轴用）
+      function scoreAt(tstr, type) {
+        if (!lastF) return null;
+        const [L, W, E] = lastF, H = L.hourly, idx = {};
+        H.time.forEach((t, i) => (idx[t] = i));
+        const i = idx[tstr]; if (i === undefined) return null;
+        const far = (type === "sunset" ? W : E).hourly;
+        const aodMap = {};
+        if (lastA && lastA.hourly) lastA.hourly.time.forEach((t, k) => (aodMap[t] = lastA.hourly.aerosol_optical_depth[k]));
+        const ao = aodMap[tstr] != null ? aodMap[tstr] : null;
+        const per = {};
+        for (const [m, n] of MODELS) {
+          const g = (h, v) => (h[v + "_" + m] || [])[i];
+          const low = g(H, "cloud_cover_low"), mid = g(H, "cloud_cover_mid"), high = g(H, "cloud_cover_high");
+          if (low == null || mid == null || high == null) continue;
+          const fl = g(far, "cloud_cover_low"), fm = g(far, "cloud_cover_mid"), rain = g(H, "precipitation_probability") ?? 0;
+          let sc = 50; const mx = Math.max(mid, high);
+          sc += mx >= 25 && mx <= 75 ? 30 : (mx >= 10 && mx < 25) || (mx > 75 && mx <= 90) ? 10 : -15;
+          sc -= low > 60 ? 35 : low >= 30 ? 15 : 0;
+          const fa = fl != null && fm != null ? (fl + fm) / 2 : null;
+          if (fa != null) sc -= fa > 60 ? 30 : fa >= 40 ? 12 : 0;
+          if (ao != null) sc += ao < 0.2 ? 10 : ao > 0.5 ? -20 : 0;
+          if (rain > 60) sc -= 20;
+          per[n] = { s: Math.max(0, Math.min(100, sc)), low, mid, high, far: fa, rain };
+        }
+        if (!Object.keys(per).length) return null;
+        return selectVals(per, ao).score;
+      }
+      // 日落前后 2 小时时间轴：指数曲线 + 日落线 + 最佳窗口 + 现在位置
+      function sunsetTimeline(nx) {
+        if (!nx || !nx.t) return "";
+        const sh = +nx.t.slice(11, 13), sm = +nx.t.slice(14, 16);
+        const startH = sh - 2, endH = sh + 2, W = 320, H = 84, top = 14, bot = 58;
+        const pts = [];
+        for (let h = startH; h <= endH; h++) pts.push({ h, sc: scoreAt(`${nx.t.slice(0, 11)}${String(h).padStart(2, "0")}:00`, nx.type) });
+        if (pts.every((q) => q.sc == null)) return "";
+        const X = (m) => 16 + ((m - startH * 60) / ((endH - startH) * 60)) * (W - 32);
+        const Y = (v) => bot - (Math.max(0, Math.min(100, v)) / 100) * (bot - top);
+        const line = pts.filter((q) => q.sc != null).map((q, i) => (i ? "L" : "M") + X(q.h * 60).toFixed(1) + " " + Y(q.sc).toFixed(1)).join(" ");
+        const first = pts.find((q) => q.sc != null), last = pts.slice().reverse().find((q) => q.sc != null);
+        const area = line + ` L${X(last.h * 60).toFixed(1)} ${bot} L${X(first.h * 60).toFixed(1)} ${bot} Z`;
+        const dots = pts.filter((q) => q.sc != null).map((q) => `<circle cx="${X(q.h * 60).toFixed(1)}" cy="${Y(q.sc).toFixed(1)}" r="3" fill="#fff"/>`).join("");
+        const sMin = sh * 60 + sm, sX = X(sMin);
+        const b0 = X(sMin - 30), b1 = X(sMin + 30);
+        const now = new Date(Date.now() + utcOff * 1000);
+        const nMin = now.getUTCHours() * 60 + now.getUTCMinutes();
+        let nowDot = "";
+        if (nMin >= startH * 60 && nMin <= endH * 60) {
+          const nSc = scoreAt(`${nx.t.slice(0, 11)}${String(now.getUTCHours()).padStart(2, "0")}:00`, nx.type);
+          nowDot = `<line x1="${X(nMin).toFixed(1)}" y1="${top}" x2="${X(nMin).toFixed(1)}" y2="${bot}" stroke="#fff" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/><circle cx="${X(nMin).toFixed(1)}" cy="${Y(nSc != null ? nSc : 50).toFixed(1)}" r="4" fill="#fff" stroke="#fa7e1e" stroke-width="2"/>`;
+        }
+        const labels = pts.map((q) => `<text x="${X(q.h * 60).toFixed(1)}" y="${H - 8}" font-size="10" fill="rgba(255,255,255,.65)" text-anchor="middle">${String(q.h).padStart(2, "0")}:00</text>`).join("");
+        const fmt = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+        return `<svg class="x-tl" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="tlg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fa7e1e" stop-opacity=".35"/><stop offset="1" stop-color="#d62976" stop-opacity="0"/></linearGradient></defs><rect x="${b0.toFixed(1)}" y="${top}" width="${(b1 - b0).toFixed(1)}" height="${bot - top}" fill="rgba(250,126,30,.14)"/><path d="${area}" fill="url(#tlg)"/><path d="${line}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}<line x1="${sX.toFixed(1)}" y1="${top}" x2="${sX.toFixed(1)}" y2="${bot}" stroke="#fff" stroke-width="1" stroke-dasharray="4 3" opacity=".8"/>${nowDot}${labels}</svg><p class="x-tl__cap"><span>最佳观赏 ${fmt(sMin - 30)}–${fmt(sMin + 30)}</span><span>日落 ${nx.t.slice(11, 16)}</span></p>`;
+      }
       function render(noAnim) {
+        const _d0 = new Date(); const _wd = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][_d0.getDay()];
+        const _ss0 = events.find((e) => e.type === "sunset" && e.day === 0 && e.t);
+        const _hd = $("headDate"); if (_hd) _hd.textContent = `${_d0.getMonth() + 1}月${_d0.getDate()}日 ${_wd}` + (_ss0 ? ` · 日落 ${_ss0.t.slice(11, 16)}` : "");
         const nx = events.find((e) => e.t && !e.past && e.score != null);
         const R = 52, C = 2 * Math.PI * R;
         if (nx) {
           const lc = `var(--x-l${lvIdx(nx.score)})`;
-          $("nextBox").innerHTML = `<div class="x-next x-card${noAnim ? "" : " x-fade"}" style="--lc:${lc}">
-             <div class="x-gauge" role="img" aria-label="评分 ${nx.score} 分，${LV[lvIdx(nx.score)][1]}">
-               <svg viewBox="0 0 128 128"><circle class="x-track" cx="64" cy="64" r="${R}"/><circle class="x-arc" id="arc" cx="64" cy="64" r="${R}" stroke="${lc}" stroke-dasharray="${C}" stroke-dashoffset="${noAnim ? C * (1 - nx.score / 100) : C}"${noAnim ? ' style="transition:none"' : ""}/></svg>
-               <div class="x-gauge__num"><b>${nx.score}</b><span>/ 100</span></div>
-             </div>
-             <div>
-               <p class="x-next__lv">${LV[lvIdx(nx.score)][1]}</p>
-               <p class="x-next__when">${dayName(nx)}${typeName(nx.type)} · ${fmtDate(nx.t)} ${nx.t.slice(11, 16)}</p>
-               <p class="x-next__count" id="countdown"></p>
-             </div>
-             <p class="x-next__reason">${nx.reason}</p></div>`;
-          if (!noAnim) requestAnimationFrame(() => requestAnimationFrame(() => { const a = $("arc"); if (a) a.style.strokeDashoffset = C * (1 - nx.score / 100); }));
+          $("nextBox").innerHTML = `<div class="x-hero2${noAnim ? "" : " x-fade"}" style="--lc:${lc}">
+             <img class="x-hero2__bg" src="sunset_hero.jpg" alt="" />
+             <div class="x-hero2__shade"></div>
+             <div class="x-hero2__body">
+               <p class="x-hero2__label">下一场 · ${typeName(nx.type)}</p>
+               <div class="x-dots" role="img" aria-label="评分 ${nx.score} 分">${dotNum(nx.score)}</div>
+               <p class="x-hero2__lv">${LV[lvIdx(nx.score)][1]}<span>${nx.score} 分</span></p>
+               <p class="x-hero2__when">${dayName(nx)}${typeName(nx.type)} · ${fmtDate(nx.t)} ${nx.t.slice(11, 16)} · <span id="countdown"></span></p>
+               ${sunsetTimeline(nx)}
+               <p class="x-hero2__reason">${nx.reason}</p>
+             </div></div>`;
           nextAt = Date.parse(nx.t + ":00Z") - utcOff * 1000;
           tick();
         } else {
           nextAt = null;
           $("nextBox").innerHTML = `<p class="x-place">暂无可用的预报。</p>`;
         }
+
         let html = '<div class="x-days">';
         for (let j = 0; j < 7; j++) {
           const pair = events.filter((e) => e.day === j), ref = pair.find((e) => e.t);
@@ -470,8 +656,33 @@
         }
         $("weekBox").innerHTML = html + "</div>";
         if (nx) detail(events.indexOf(nx), false);
+        renderTrends();
       }
 
+      function renderTrends() {
+        const box = $("trendBox"); if (!box) return;
+        const ss = [], sr = [];
+        for (let j = 0; j < 7; j++) {
+          const a = events.find((x) => x.day === j && x.type === "sunset" && x.score != null);
+          const b = events.find((x) => x.day === j && x.type === "sunrise" && x.score != null);
+          ss.push(a ? a.score : null); sr.push(b ? b.score : null);
+        }
+        const ssF = ss.filter((v) => v != null), srF = sr.filter((v) => v != null);
+        if (!ssF.length && !srF.length) { box.innerHTML = ""; return; }
+        const best = events.filter((x) => x.type === "sunset" && x.score != null).sort((x, y) => y.score - x.score).slice(0, 2);
+        const diffs = [];
+        for (let j = 0; j < 7; j++) {
+          const e = events.find((x) => x.day === j && x.type === "sunset" && x.models && x.models.length === 2);
+          diffs.push(e ? Math.abs(e.models[0].s - e.models[1].s) : 0);
+        }
+        const avgD = diffs.length ? Math.round(diffs.reduce((x, y) => x + y, 0) / diffs.length) : 0;
+        const mxD = Math.max.apply(null, diffs.concat([1]));
+        box.innerHTML =
+          `<div class="x-trend"><h3>日落指数趋势 <span>7 天</span></h3>${ssF.length > 1 ? sparkline(ssF, "spg-ss") : ""}<p>最高 <b>${Math.max.apply(null, ssF)} 分</b> · 最低 <b>${Math.min.apply(null, ssF)} 分</b></p></div>` +
+          `<div class="x-trend"><h3>日出指数趋势 <span>7 天</span></h3>${srF.length > 1 ? sparkline(srF, "spg-sr") : ""}<p>最高 <b>${Math.max.apply(null, srF)} 分</b> · 最低 <b>${Math.min.apply(null, srF)} 分</b></p></div>` +
+          `<div class="x-trend"><h3>EC / GFS 差异 <span>日落 · 绝对分差</span></h3><div class="x-diffbars">${diffs.map((d) => `<i style="height:${Math.max(3, Math.round((d / mxD) * 52))}px" title="${d} 分"></i>`).join("")}</div><p>平均差异 <b>${avgD} 分</b> · ${avgD <= 10 ? "两模型较一致，预测较稳定" : avgD <= 20 ? "两模型有分歧，以 EC 为准更稳" : "两模型分歧较大，临近再看"}</p></div>` +
+          `<div class="x-trend"><h3>最佳观赏日期</h3><p>${best.map((e) => `<b>${fmtDate(e.t)} ${dayName(e)}</b> 日落 <b>${e.score} 分 ${LV[lvIdx(e.score)][1]}</b>`).join("；")}</p></div>`;
+      }
       $("weekBox").addEventListener("click", (e) => {
         const b = e.target.closest(".x-tile[data-k]"); if (b) detail(+b.dataset.k, true);
       });
@@ -494,6 +705,7 @@
         const el = $("modelNote"); if (!el) return;
         const t = dataAt ? new Date(dataAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) : "—";
         el.textContent = `当前：${MODEL_LABEL[modelSel]}。数据 ${t} 更新${cached ? "（缓存）" : ""} · 切换只重算同一份数据，不重新联网，分数不会来回跳。`;
+        const pd = $("profDataTime"); if (pd) pd.textContent = t;
         document.querySelectorAll("#modelSeg [data-model]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.model === modelSel));
       }
       $("modelSeg").addEventListener("click", (e) => {
@@ -503,6 +715,32 @@
         updateModelNote(true);
         if (lastF) { compute(lastF, lastA); render(true); }
       });
+      function favs() { try { return JSON.parse(localStorage.getItem("xg:fav") || "[]"); } catch (e) { return []; } }
+      function renderProfile() {
+        const box = $("profBox"); if (!box) return;
+        const fv = favs();
+        const t = dataAt ? new Date(dataAt).toLocaleString("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+        const nt = (k) => { try { return localStorage.getItem(k) === "1"; } catch (e) { return false; } };
+        box.innerHTML =
+          `<div class="x-prof"><h3>城市管理</h3>` + CITIES.map((c, i) => `<div class="x-prof__row"><span>${c[0]}</span><small>${c[1].toFixed(2)}, ${c[2].toFixed(2)}</small><button class="x-star${fv.includes(c[0]) ? " on" : ""}" type="button" data-fav="${c[0]}" aria-label="收藏 ${c[0]}">★</button><button class="x-chip" type="button" data-go="${i}">查看</button></div>`).join("") + `</div>` +
+          `<div class="x-prof"><h3>提醒</h3><div class="x-prof__row"><span>日落提醒</span><button class="x-switch" type="button" data-nt="xg:nt-sunset" aria-pressed="${nt("xg:nt-sunset")}"></button></div><div class="x-prof__row"><span>日出提醒</span><button class="x-switch" type="button" data-nt="xg:nt-sunrise" aria-pressed="${nt("xg:nt-sunrise")}"></button></div><p class="fineprint">提醒偏好保存在本机；实际推送需 App 原生壳支持。</p></div>` +
+          `<div class="x-prof"><h3>设置</h3><div class="x-prof__row"><span>主题</span><small>深色</small></div><div class="x-prof__row"><span>数据更新</span><small id="profDataTime">${t}</small></div><div class="x-prof__row"><span>关于霞光</span><small>1.5 · 数据 Open-Meteo（ECMWF / GFS）</small></div></div>`;
+        box.querySelectorAll("[data-fav]").forEach((b) => b.addEventListener("click", () => {
+          let f = favs(); const n = b.dataset.fav;
+          f = f.includes(n) ? f.filter((x) => x !== n) : f.concat([n]);
+          try { localStorage.setItem("xg:fav", JSON.stringify(f)); } catch (e) {}
+          renderProfile();
+        }));
+        box.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => {
+          const c = CITIES[+b.dataset.go]; if (c) { load({ name: c[0], lat: c[1], lon: c[2] }); showView("home"); }
+        }));
+        box.querySelectorAll("[data-nt]").forEach((b) => b.addEventListener("click", () => {
+          const on = b.getAttribute("aria-pressed") !== "true";
+          b.setAttribute("aria-pressed", String(on));
+          try { localStorage.setItem(b.dataset.nt, on ? "1" : "0"); } catch (e) {}
+        }));
+      }
+      renderProfile();
       updateModelNote(false);
 
       function tick() {
