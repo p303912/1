@@ -49,7 +49,7 @@
 
       /* sections */
       .x-sec { position: relative; display: grid; gap: 12px; min-width: 0; }
-      #spots { margin-top: 10px; }
+      #view-home .x-sec + .x-sec { margin-top: 32px; }
       .x-h { font: var(--type-heading); color: var(--x-text); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; letter-spacing: .03em; }
       .x-h small { font: var(--type-small); color: var(--x-dim); }
 
@@ -125,7 +125,8 @@
 
 
       /* nearby spots */
-      .x-spots { display: grid; gap: 8px; }
+      .x-spots { display: grid; gap: 0; }
+      .x-spot + .x-spot { border-top: 1px solid var(--x-line); }
       .x-spot { display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--tap); padding: 12px 14px; text-align: left; cursor: pointer; color: var(--x-text); font: var(--type-body); text-decoration: none; }
       .x-spot:active { transform: scale(.98); }
       .x-spot__tag { flex: none; padding: 3px 10px; border-radius: var(--r-pill); background: var(--x-soft); color: var(--x-text-2); font: var(--type-tag); }
@@ -179,7 +180,7 @@
       .x-tab.on { opacity: 1; }
       .x-tab svg { display: block; }
       /* 高级版：大标题头、照片主卡、点阵数字、双卡、目标行、刷新胶囊 */
-      .x-tophead { max-width: 640px; margin: 0 auto; padding: 8px 16px 12px; display: flex; align-items: baseline; width: 100%; box-sizing: border-box; }
+      .x-tophead { display: flex; align-items: baseline; width: 100%; box-sizing: border-box; padding: 0; }
       .x-tophead__date { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--x-dim); }
       .x-tophead__refresh { margin-left: auto; padding: 10px 0 10px 16px; background: none; border: 0; font-size: 11px; letter-spacing: .08em; color: #fafafa; white-space: nowrap; cursor: pointer; }
       .x-tophead__refresh:active { opacity: .55; }
@@ -196,6 +197,8 @@
       .x-spark { width: 100%; height: 56px; display: block; }
       .x-detail.x-card { background: #121212; border: 1px solid #262626; border-radius: 20px; }
       .x-view[hidden] { display: none; }
+      .x-view { min-width: 0; width: 100%; }
+      #view-profile, #view-profile .x-sec, #profBox, .x-prof { width: 100%; background: #000; }
       #view-map, #view-trends, #view-profile { padding-top: 10px; }
       .x-tophead[hidden] { display: none; }
       .x-tl { width: 100%; height: 84px; display: block; margin-top: 2px; }
@@ -226,10 +229,6 @@
   </head>
   <body>
     <div class="page x-app" id="top">
-      <div class="x-tophead">
-        <span class="x-tophead__date" id="headDate">2026 11 19 00:00:00</span>
-        <button class="x-tophead__refresh" id="refreshBtn" type="button">刷新</button>
-      </div>
       <main class="x-wrap">
       <div id="view-home" class="x-view">
         <section class="x-sec x-fade x-d1" id="place" aria-label="选一个地点">
@@ -239,6 +238,10 @@
           </div>
           <div class="x-cities" id="cities"></div>
           <p class="x-place" id="placeLabel"></p>
+          <div class="x-tophead">
+            <span class="x-tophead__date" id="headDate">2026 11 19 00:00:00</span>
+            <button class="x-tophead__refresh" id="refreshBtn" type="button">刷新</button>
+          </div>
         </section>
 
         <section class="x-sec x-fade x-d2" id="model" aria-label="选择预报模型">
@@ -305,7 +308,6 @@
         <script>
           function showView(name) {
             document.querySelectorAll('.x-view').forEach(function (v) { v.hidden = v.id !== 'view-' + name; });
-            var th = document.querySelector('.x-tophead'); if (th) th.hidden = name !== 'home';
             document.querySelectorAll('.x-tab').forEach(function (t) { t.classList.toggle('on', t.dataset.view === name); });
             window.scrollTo(0, 0);
           }
