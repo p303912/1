@@ -179,31 +179,27 @@
       @media (prefers-reduced-motion: reduce) { .x-skel, .x-fade, .x-hero img, .x-detail { animation: none; } .x-gauge .x-arc { transition: none; } }
       /* ins 风：动态圈、帖子头、操作栏、底部导航 */
       .x-story { display: inline-flex; align-items: center; gap: 6px; padding: 9px 15px; border-radius: 999px; background: #1c1c1e; border: 1px solid #262626; color: #d4d4d4; font-size: 13px; font-weight: 500; cursor: pointer; flex: 0 0 auto; scroll-snap-align: start; white-space: nowrap; }
-      .x-story[aria-pressed="true"] { color: #fafafa; font-weight: 600; border: 1px solid transparent; background: linear-gradient(#1c1c1e, #1c1c1e) padding-box, linear-gradient(45deg, #fa7e1e, #d62976, #962fbf) border-box; }
+      .x-story[aria-pressed="true"] { color: var(--x-chip-on-text); font-weight: 600; background: var(--x-chip-on); border-color: var(--x-chip-on); }
       .x-tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 50; display: flex; justify-content: space-around; align-items: center; width: min(340px, calc(100% - 48px)); height: 56px; border-radius: 999px; background: rgba(28, 28, 30, .55); border: 1px solid rgba(255, 255, 255, .22); box-shadow: 0 8px 32px rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%); }
-      .x-homeind { position: fixed; left: 50%; transform: translateX(-50%); bottom: 6px; width: 120px; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, .55); z-index: 60; }
       .x-tab { background: none; border: 0; color: #8e8e93; padding: 6px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-weight: 500; min-width: 56px; }
       .x-tab.on { color: #fa7e1e; }
       .x-tab span { font-size: 10px; line-height: 1; }
       .x-tab.on { opacity: 1; }
       .x-tab svg { display: block; }
-      .x-tab__ava { width: 28px; height: 28px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5); }
-      .x-tab__in { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; color: #fff; background: #000; }
       /* 高级版：大标题头、照片主卡、点阵数字、双卡、目标行、刷新胶囊 */
-      .x-tophead { max-width: 640px; margin: 0 auto; padding: 20px 16px 2px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+      .x-tophead { max-width: 640px; margin: 0 auto; padding: 20px 16px 2px; position: relative; text-align: center; }
+      .x-tophead__meta { display: inline-block; text-align: center; }
+      .x-refresh { position: absolute; right: 16px; top: 24px; width: 40px; height: 40px; border-radius: 50%; border: 1px solid #262626; background: #1c1c1e; color: #d4d4d4; cursor: pointer; display: grid; place-items: center; }
+      .x-refresh:active { transform: scale(.94); }
+      .x-refresh.spin svg { animation: x-spin .9s linear infinite; }
+      @keyframes x-spin { to { transform: rotate(360deg); } }
       .x-tophead__date { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--x-dim); }
       .x-tophead h1 { font-size: 34px; line-height: 1.15; font-weight: 700; letter-spacing: .01em; color: #fafafa; margin-top: 4px; }
-      .x-tophead__ava { width: 40px; height: 40px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5); flex: 0 0 auto; margin-top: 8px; }
-      .x-tophead__in { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; font-size: 16px; font-weight: 600; color: #fff; background: #000; }
       .x-hero2 { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .12); }
       .x-hero2__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
       .x-hero2__shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,.74) 100%), linear-gradient(135deg, rgba(214,41,118,.30), rgba(250,126,30,.12) 55%, transparent); }
       .x-hero2__body { position: relative; z-index: 1; padding: 22px 20px 18px; display: grid; gap: 10px; }
       .x-hero2__label { font-size: 12px; letter-spacing: .12em; color: rgba(255, 255, 255, .85); text-transform: uppercase; }
-      .x-dots { display: flex; gap: 12px; margin: 2px 0; }
-      .x-digit { display: grid; grid-template-columns: repeat(5, 6px); grid-auto-rows: 6px; gap: 3px; }
-      .x-digit i { display: block; width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .14); }
-      .x-digit i.on { background: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, .45); }
       .x-hero2__lv { font-size: 26px; font-weight: 600; color: var(--lc, #fff); }
       .x-hero2__lv span { font-size: 15px; font-weight: 400; color: rgba(255, 255, 255, .85); margin-left: 4px; }
       .x-hero2__when { font-size: 13px; color: rgba(255, 255, 255, .85); }
@@ -242,7 +238,7 @@
           <span class="x-tophead__date" id="headDate">11月19日 周三</span>
           <h1>霞光</h1>
         </div>
-        <span class="x-tophead__ava"><span class="x-tophead__in">霞</span></span>
+        <button class="x-refresh" type="button" id="refreshBtn" aria-label="刷新预报"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
       </div>
       <main class="x-wrap">
       <div id="view-home" class="x-view">
@@ -269,19 +265,6 @@
           <h2 class="x-h">下一场烧不烧</h2>
           <div id="nextBox"></div>
         </section>
-        <script>
-          function showView(name) {
-            document.querySelectorAll('.x-view').forEach(function (v) { v.hidden = v.id !== 'view-' + name; });
-            document.querySelectorAll('.x-tab').forEach(function (t) { t.classList.toggle('on', t.dataset.view === name); });
-            window.scrollTo(0, 0);
-          }
-          (function () {
-            document.querySelectorAll('.x-tab').forEach(function (t) {
-              t.addEventListener('click', function () { showView(t.dataset.view || 'home'); });
-            });
-          })();
-        </script>
-
         <section class="x-sec x-fade x-d3" id="week">
           <h2 class="x-h">7 天日出日落 <small>点格子看详情</small></h2>
           <div id="weekBox"></div>
@@ -329,7 +312,19 @@
         <button class="x-tab" type="button" data-view="trends"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 8 11 13 15 21 6"/><path d="M15 6h6v6"/></svg><span>趋势</span></button>
         <button class="x-tab" type="button" data-view="profile"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg><span>我的</span></button>
       </nav>
-      <div class="x-homeind"></div>
+        <script>
+          function showView(name) {
+            document.querySelectorAll('.x-view').forEach(function (v) { v.hidden = v.id !== 'view-' + name; });
+            document.querySelectorAll('.x-tab').forEach(function (t) { t.classList.toggle('on', t.dataset.view === name); });
+            window.scrollTo(0, 0);
+          }
+          (function () {
+            document.querySelectorAll('.x-tab').forEach(function (t) {
+              t.addEventListener('click', function () { showView(t.dataset.view || 'home'); });
+            });
+          })();
+        </script>
+
 </div>
     <script src="hark.js"></script>
     <script>
@@ -533,26 +528,6 @@
       const typeName = (t) => (t === "sunrise" ? "日出" : "日落");
       const dayName = (e) => (e.day === 0 ? "今天" : e.day === 1 ? "明天" : wk(e.t));
 
-      // 点阵数字（参考 Morning run 的点阵大数字）
-      const DOTMAP = {
-        "0": ["01110","10001","10011","10101","11001","10001","01110"],
-        "1": ["00100","01100","00100","00100","00100","00100","01110"],
-        "2": ["01110","10001","00001","00110","01000","10000","11111"],
-        "3": ["11111","00010","00100","00010","00001","10001","01110"],
-        "4": ["00010","00110","01010","10010","11111","00010","00010"],
-        "5": ["11111","10000","11110","00001","00001","10001","01110"],
-        "6": ["00110","01000","10000","11110","10001","10001","01110"],
-        "7": ["11111","00001","00010","00100","01000","01000","01000"],
-        "8": ["01110","10001","10001","01110","10001","10001","01110"],
-        "9": ["01110","10001","10001","01111","00001","00010","01100"]
-      };
-      function dotNum(n) {
-        return String(n).split("").map((ch) => {
-          const g = DOTMAP[ch] || DOTMAP["0"];
-          const cells = g.join("").split("").map((c) => `<i class="${c === "1" ? "on" : ""}"></i>`).join("");
-          return `<span class="x-digit">${cells}</span>`;
-        }).join("");
-      }
       function sparkline(vals, gid) {
         const g = gid || "spg";
         const W = 320, H = 56;
@@ -630,12 +605,20 @@
              <div class="x-hero2__shade"></div>
              <div class="x-hero2__body">
                <p class="x-hero2__label">下一场 · ${typeName(nx.type)}</p>
-               <div class="x-dots" role="img" aria-label="评分 ${nx.score} 分">${dotNum(nx.score)}</div>
-               <p class="x-hero2__lv">${LV[lvIdx(nx.score)][1]}<span>${nx.score} 分</span></p>
+               <div class="x-gauge" role="img" aria-label="评分 ${nx.score} 分，${LV[lvIdx(nx.score)][1]}">
+                 <svg viewBox="0 0 128 128"><circle class="x-track" cx="64" cy="64" r="${R}"/><circle class="x-arc" id="arc" cx="64" cy="64" r="${R}" stroke="${lc}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
+                 <div class="x-gauge__num"><b>${nx.score}</b><span>/ 100</span></div>
+               </div>
+               <p class="x-hero2__lv">${LV[lvIdx(nx.score)][1]}</p>
                <p class="x-hero2__when">${dayName(nx)}${typeName(nx.type)} · ${fmtDate(nx.t)} ${nx.t.slice(11, 16)} · <span id="countdown"></span></p>
                ${sunsetTimeline(nx)}
                <p class="x-hero2__reason">${nx.reason}</p>
              </div></div>`;
+          const _arc = $("arc");
+          if (_arc) {
+            if (noAnim) { _arc.style.transition = "none"; _arc.style.strokeDashoffset = C * (1 - nx.score / 100); }
+            else { requestAnimationFrame(() => requestAnimationFrame(() => { const a = $("arc"); if (a) a.style.strokeDashoffset = C * (1 - nx.score / 100); })); }
+          }
           nextAt = Date.parse(nx.t + ":00Z") - utcOff * 1000;
           tick();
         } else {
@@ -715,6 +698,8 @@
         updateModelNote(true);
         if (lastF) { compute(lastF, lastA); render(true); }
       });
+      // 刷新按钮：清掉当前地点的 1 小时缓存，重新拉数据。
+      (function () { const b = $("refreshBtn"); if (!b) return; b.addEventListener("click", function () { if (!current) return; try { localStorage.removeItem(`xsh:${current.lat.toFixed(2)},${current.lon.toFixed(2)}`); } catch (e) {} b.classList.add("spin"); setTimeout(function () { b.classList.remove("spin"); }, 1200); load(current); }); })();
       function favs() { try { return JSON.parse(localStorage.getItem("xg:fav") || "[]"); } catch (e) { return []; } }
       function renderProfile() {
         const box = $("profBox"); if (!box) return;
